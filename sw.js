@@ -1,4 +1,4 @@
-const CACHE_NAME = 'verificacion-v6';
+const CACHE_NAME = 'verificacion-v7';
 const ASSETS = [
   '/',
   '/index.html',
@@ -21,7 +21,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((name) => {
-          if (name !== CACHE_NAME) return caches.delete(name);
+          return caches.delete(name); // Limpieza total de cualquier rastro previo
         })
       );
     })
