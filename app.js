@@ -100,23 +100,23 @@ const render = (path) => {
                 container.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-full space-y-6 px-6 text-center">
                         <h1 class="text-3xl font-bold text-blue-500">Configurar Acceso</h1>
-                        <p class="text-slate-400">Crea un PIN de 4 dígitos para proteger tus datos.</p>
-                        <span class="text-[10px] text-slate-700 font-mono">Build v1.0.5</span>
+                        <p class="text-slate-500">Crea un PIN de 4 dígitos para proteger tus datos.</p>
+                        <span class="text-[10px] text-slate-400 font-mono">Build v1.0.5</span>
                         <input type="password" id="new-pin" maxlength="4" inputmode="numeric" placeholder="0000" oninput="if(this.value.length === 4) window.setupPin()"
-                            class="bg-slate-900 border-2 border-slate-800 text-4xl tracking-[1rem] text-center p-4 rounded-2xl w-full outline-none focus:border-blue-600 border-blue-900/30">
+                            class="bg-white border-2 border-slate-200 text-4xl tracking-[1rem] text-center p-4 rounded-2xl w-full outline-none focus:border-blue-600">
                         <button onclick="window.setupPin()" class="bg-blue-600 w-full p-4 rounded-xl font-bold text-lg">Establecer PIN</button>
                     </div>`;
             } else {
                 container.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-full space-y-6 px-6 text-center">
                         <h1 class="text-3xl font-bold text-blue-500">Bienvenido</h1>
-                        <p class="text-slate-400">Ingresa tu PIN de seguridad</p>
-                        <span class="text-[10px] text-slate-700 font-mono">Build v1.0.5</span>
+                        <p class="text-slate-500">Ingresa tu PIN de seguridad</p>
+                        <span class="text-[10px] text-slate-400 font-mono">Build v1.0.5</span>
                         <input type="password" id="login-pin" maxlength="4" inputmode="numeric" placeholder="••••" oninput="if(this.value.length === 4) window.verifyPin()"
-                            class="bg-slate-900 border-2 border-slate-800 text-4xl tracking-[1rem] text-center p-4 rounded-2xl w-full outline-none focus:border-blue-600 border-blue-900/30">
+                            class="bg-white border-2 border-slate-200 text-4xl tracking-[1rem] text-center p-4 rounded-2xl w-full outline-none focus:border-blue-600">
                         <div class="grid grid-cols-1 gap-4 w-full">
-                            <button onclick="window.verifyPin()" class="bg-blue-600 p-4 rounded-xl font-bold text-lg">Ingresar</button>
-                            <button id="bio-btn" onclick="window.handleBiometric()" class="hidden border border-slate-700 p-4 rounded-xl font-bold flex items-center justify-center gap-2">
+                            <button onclick="window.verifyPin()" class="bg-blue-600 p-4 rounded-xl font-bold text-lg text-white">Ingresar</button>
+                            <button id="bio-btn" onclick="window.handleBiometric()" class="hidden border border-slate-300 p-4 rounded-xl font-bold flex items-center justify-center gap-2 text-slate-700">
                                 <span>🧬</span> Usar Biometría
                             </button>
                         </div>
@@ -134,12 +134,12 @@ const render = (path) => {
             container.innerHTML = `
                 <header class="mb-6 flex justify-between items-start">
                     <div>
-                        <p class="text-slate-400 text-sm">Bienvenido, ${state.currentUser?.name}</p>
+                        <p class="text-slate-500 text-sm">Bienvenido, ${state.currentUser?.name}</p>
                         <h2 class="text-2xl font-bold">Evaluaciones Recientes</h2>
                     </div>
-                    <button onclick="window.logout()" class="text-xs bg-slate-900 border border-slate-800 px-3 py-1 rounded-lg text-slate-400 active:scale-95">Salir</button>
+                    <button onclick="window.logout()" class="text-xs bg-white border border-slate-200 px-3 py-1 rounded-lg text-slate-500 active:scale-95">Salir</button>
                 </header>
-                <div id="evaluations-list" class="space-y-3">
+                <div id="evaluations-list" class="space-y-4">
                     <p class="text-slate-500 italic text-center py-10">Sincronizando...</p>
                 </div>
             `;
@@ -153,11 +153,11 @@ const render = (path) => {
                     <button onclick="window.router.navigate('/dashboard')" class="mr-4 text-blue-500">← Volver</button>
                     <h2 class="text-2xl font-bold">Nueva Evaluación</h2>
                 </header>
-                <form id="eval-form" class="space-y-4">
-                    <input type="text" id="cliente" placeholder="Nombre del Cliente" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl outline-none focus:border-blue-500" required>
-                    <input type="number" id="dni" placeholder="DNI / Identificación" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl outline-none focus:border-blue-500" required>
-                    <input type="number" id="puntaje" placeholder="Puntaje Crediticio (0-1000)" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl outline-none focus:border-blue-500" required>
-                    <select id="estado" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl outline-none focus:border-blue-500">
+                <form id="eval-form" class="space-y-4 text-slate-900">
+                    <input type="text" id="cliente" placeholder="Nombre del Cliente" class="w-full bg-white border border-slate-200 p-4 rounded-xl outline-none focus:border-blue-500" required>
+                    <input type="number" id="dni" placeholder="DNI / Identificación" class="w-full bg-white border border-slate-200 p-4 rounded-xl outline-none focus:border-blue-500" required>
+                    <input type="number" id="puntaje" placeholder="Puntaje Crediticio (0-1000)" class="w-full bg-white border border-slate-200 p-4 rounded-xl outline-none focus:border-blue-500" required>
+                    <select id="estado" class="w-full bg-white border border-slate-200 p-4 rounded-xl outline-none focus:border-blue-500">
                         <option value="Pendiente">Pendiente</option>
                         <option value="Aprobado">Aprobado</option>
                         <option value="Rechazado">Rechazado</option>
@@ -183,14 +183,14 @@ const initEvaluationsListener = () => {
         snapshot.forEach((doc) => {
             const item = doc.data();
             html += `
-                <div class="bg-slate-900 p-4 rounded-xl flex justify-between items-center border-l-4 border-blue-500">
+                <div class="bg-white p-4 rounded-xl flex justify-between items-center border border-slate-100 shadow-sm border-l-4 border-l-blue-500">
                     <div class="flex-1">
                         <h3 class="font-bold">${item.cliente || 'Sin nombre'}</h3>
-                        <p class="text-xs text-slate-400">DNI: ${item.dni || 'N/A'}</p>
+                        <p class="text-xs text-slate-500 font-medium">DNI: ${item.dni || 'N/A'}</p>
                     </div>
                     <div class="text-right">
                         <span class="text-xl font-mono font-bold ${item.estado === 'Aprobado' ? 'text-green-500' : 'text-red-500'}">${item.puntaje || 0}</span>
-                        <p class="text-[10px] uppercase text-slate-500">Puntaje</p>
+                        <p class="text-[10px] uppercase text-slate-400 font-bold">Puntaje</p>
                     </div>
                 </div>
             `;
