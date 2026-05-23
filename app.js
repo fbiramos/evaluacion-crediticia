@@ -101,17 +101,18 @@ const render = (path) => {
                     <div class="flex flex-col items-center justify-center h-full space-y-6 px-6 text-center">
                         <h1 class="text-3xl font-bold text-blue-500">Configurar Acceso</h1>
                         <p class="text-slate-500">Crea un PIN de 4 dígitos para proteger tus datos.</p>
-                        <span class="text-[10px] text-slate-400 font-mono">Build v1.0.7</span>
+                        <span class="text-[10px] text-slate-400 font-mono">Build v1.0.8</span>
                         <input type="password" id="new-pin" maxlength="4" inputmode="numeric" placeholder="0000" oninput="if(this.value.length === 4) window.setupPin()"
                             class="bg-white border-2 border-slate-200 text-4xl tracking-[1rem] text-center p-4 rounded-2xl w-full outline-none focus:border-blue-600">
                         <button onclick="window.setupPin()" class="bg-blue-600 w-full p-4 rounded-xl font-bold text-lg">Establecer PIN</button>
+                        <button onclick="window.purgeCache()" class="text-[10px] text-slate-300 underline mt-4">Forzar Actualización Total</button>
                     </div>`;
             } else {
                 container.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-full space-y-6 px-6 text-center">
                         <h1 class="text-3xl font-bold text-blue-500">Bienvenido</h1>
                         <p class="text-slate-500">Ingresa tu PIN de seguridad</p>
-                        <span class="text-[10px] text-slate-400 font-mono">Build v1.0.7</span>
+                        <span class="text-[10px] text-slate-400 font-mono">Build v1.0.8</span>
                         <input type="password" id="login-pin" maxlength="4" inputmode="numeric" placeholder="••••" oninput="if(this.value.length === 4) window.verifyPin()"
                             class="bg-white border-2 border-slate-200 text-4xl tracking-[1rem] text-center p-4 rounded-2xl w-full outline-none focus:border-blue-600">
                         <div class="grid grid-cols-1 gap-4 w-full">
@@ -120,6 +121,7 @@ const render = (path) => {
                                 <span>🧬</span> Usar Biometría
                             </button>
                         </div>
+                        <button onclick="window.purgeCache()" class="text-[10px] text-slate-300 underline mt-4">Forzar Actualización Total</button>
                     </div>`;
                 // Mostrar botón de biometría si está disponible
                 window.PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable().then(avail => {
@@ -235,6 +237,19 @@ window.setupPin = () => {
 window.verifyPin = () => {
     const val = document.getElementById('login-pin').value;
     checkAccess(val);
+};
+
+window.purgeCache = async () => {
+    if (confirm("Se borrará el caché y se reiniciará la app. ¿Continuar?")) {
+        const names = await caches.keys();
+        await Promise.all(names.map(name => caches.delete(name)));
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (let registration of registrations) {
+            await registration.unregister();
+        }
+        alert("Caché limpiado. La app se cerrará.");
+        window.location.href = window.location.origin + '?clear=' + Date.now();
+    }
 };
 
 window.logout = () => {
