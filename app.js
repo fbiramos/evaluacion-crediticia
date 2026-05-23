@@ -245,7 +245,18 @@ window.handleBiometric = handleBiometricAuth;
 
 // Registro de Service Worker
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
+    navigator.serviceWorker.register('/sw.js').then(reg => {
+        reg.onupdatefound = () => {
+            const installingWorker = reg.installing;
+            installingWorker.onstatechange = () => {
+                if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // Nueva versión detectada y lista
+                    console.log("Nueva versión detectada. Recargando...");
+                    window.location.reload();
+                }
+            };
+        };
+    });
 }
 
 // Inicio de la App
