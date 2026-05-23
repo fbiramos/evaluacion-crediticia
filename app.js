@@ -87,7 +87,7 @@ const render = (path) => {
                     <p class="text-slate-400 text-sm">Bienvenido, ${state.currentUser?.name}</p>
                     <h2 class="text-2xl font-bold">Evaluaciones Recientes</h2>
                 </header>
-                <div id="inventory-list" class="space-y-3">
+                <div id="evaluations-list" class="space-y-3">
                     <p class="text-slate-500 italic text-center py-10">Sincronizando...</p>
                 </div>
             `;
@@ -124,7 +124,7 @@ const initEvaluationsListener = () => {
     if (unsubscribeEvaluations) unsubscribeEvaluations();
     const q = query(collection(db, "evaluaciones"), orderBy("timestamp", "desc"));
     unsubscribeEvaluations = onSnapshot(q, (snapshot) => {
-        const listContainer = document.getElementById('inventory-list');
+        const listContainer = document.getElementById('evaluations-list');
         if (!listContainer) return;
         
         let html = '';
