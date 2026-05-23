@@ -119,9 +119,11 @@ const render = (path) => {
 };
 
 // 7. Sincronización Real-time
+let unsubscribeEvaluations = null;
 const initEvaluationsListener = () => {
+    if (unsubscribeEvaluations) unsubscribeEvaluations();
     const q = query(collection(db, "evaluaciones"), orderBy("timestamp", "desc"));
-    onSnapshot(q, (snapshot) => {
+    unsubscribeEvaluations = onSnapshot(q, (snapshot) => {
         const listContainer = document.getElementById('inventory-list');
         if (!listContainer) return;
         
