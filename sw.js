@@ -1,4 +1,4 @@
-const CACHE_NAME = 'verificacion-v8';
+const CACHE_NAME = 'verificacion-v9';
 const ASSETS = [
   '/',
   '/index.html',
