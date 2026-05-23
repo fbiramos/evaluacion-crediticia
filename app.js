@@ -101,7 +101,7 @@ const render = (path) => {
                     <div class="flex flex-col items-center justify-center h-full space-y-6 px-6 text-center">
                         <h1 class="text-3xl font-bold text-blue-500">Configurar Acceso</h1>
                         <p class="text-slate-500">Crea un PIN de 4 dígitos para proteger tus datos.</p>
-                        <span class="text-[10px] text-slate-400 font-mono">Build v1.0.9</span>
+                        <span class="text-[10px] text-slate-400 font-mono">Build v1.1.0</span>
                         <input type="password" id="new-pin" maxlength="4" inputmode="numeric" placeholder="0000" oninput="if(this.value.length === 4) window.setupPin()"
                             class="bg-white border-2 border-slate-200 text-4xl tracking-[1rem] text-center p-4 rounded-2xl w-full outline-none focus:border-blue-600">
                         <button onclick="window.setupPin()" class="bg-blue-600 w-full p-4 rounded-xl font-bold text-lg">Establecer PIN</button>
@@ -112,7 +112,7 @@ const render = (path) => {
                     <div class="flex flex-col items-center justify-center h-full space-y-6 px-6 text-center">
                         <h1 class="text-3xl font-bold text-blue-500">Bienvenido</h1>
                         <p class="text-slate-500">Ingresa tu PIN de seguridad</p>
-                        <span class="text-[10px] text-slate-400 font-mono">Build v1.0.9</span>
+                        <span class="text-[10px] text-slate-400 font-mono">Build v1.1.0</span>
                         <input type="password" id="login-pin" maxlength="4" inputmode="numeric" placeholder="••••" oninput="if(this.value.length === 4) window.verifyPin()"
                             class="bg-white border-2 border-slate-200 text-4xl tracking-[1rem] text-center p-4 rounded-2xl w-full outline-none focus:border-blue-600">
                         <div class="grid grid-cols-1 gap-4 w-full">
