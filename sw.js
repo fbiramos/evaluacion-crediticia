@@ -1,4 +1,4 @@
-const CACHE_NAME = 'verificacion-v4';
+const CACHE_NAME = 'verificacion-v5';
 const ASSETS = [
   '/',
   '/index.html',
@@ -20,7 +20,9 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name))
+        cacheNames.map((name) => {
+          if (name !== CACHE_NAME) return caches.delete(name);
+        })
       );
     })
   );
