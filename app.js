@@ -130,9 +130,12 @@ const render = (path) => {
         case '/':
             fab.classList.remove('hidden');
             container.innerHTML = `
-                <header class="mb-6">
-                    <p class="text-slate-400 text-sm">Bienvenido, ${state.currentUser?.name}</p>
-                    <h2 class="text-2xl font-bold">Evaluaciones Recientes</h2>
+                <header class="mb-6 flex justify-between items-start">
+                    <div>
+                        <p class="text-slate-400 text-sm">Bienvenido, ${state.currentUser?.name}</p>
+                        <h2 class="text-2xl font-bold">Evaluaciones Recientes</h2>
+                    </div>
+                    <button onclick="window.logout()" class="text-xs bg-slate-900 border border-slate-800 px-3 py-1 rounded-lg text-slate-400 active:scale-95">Salir</button>
                 </header>
                 <div id="evaluations-list" class="space-y-3">
                     <p class="text-slate-500 italic text-center py-10">Sincronizando...</p>
@@ -230,6 +233,12 @@ window.setupPin = () => {
 window.verifyPin = () => {
     const val = document.getElementById('login-pin').value;
     checkAccess(val);
+};
+
+window.logout = () => {
+    localStorage.removeItem('user_profile');
+    state.currentUser = null;
+    window.router.navigate('/login');
 };
 
 window.handleBiometric = handleBiometricAuth;
