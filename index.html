@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Verificación Crediticia</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#020617">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDKs -->
+    <script type="module" src="app.js"></script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-50 h-full font-sans overflow-hidden">
+    
+    <!-- App Container -->
+    <div id="app" class="flex flex-col h-full max-w-md mx-auto relative">
+        <!-- Renderizado Dinámico aquí -->
+        <div id="view-container" class="flex-1 overflow-y-auto p-4 pb-24"></div>
+
+        <!-- Botón de Acción Principal (Flotante) -->
+        <div id="fab" class="hidden fixed bottom-8 right-8 z-50">
+            <button onclick="window.router.navigate('/nuevo')" class="bg-blue-600 hover:bg-blue-500 w-16 h-16 rounded-full shadow-2xl flex items-center justify-center text-3xl">
+                +
+            </button>
+        </div>
+    </div>
+
+    <!-- Notificación Offline -->
+    <div id="offline-toast" class="hidden fixed top-4 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold z-[100]">
+        Modo Offline Activo
+    </div>
+
+</body>
+</html>
