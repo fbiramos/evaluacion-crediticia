@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "🚀 Desplegar a GitHub",
+            "type": "shell",
+            "command": "git add . && git commit -m 'Actualización desde VS Code' && git push origin main",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

@@ -15,5 +15,11 @@ Para actualizar la aplicación en producción (GitHub Pages), ejecuta los siguie
 3. **Subir a GitHub:**
    `git push origin main`
 
-### 🚀 Comando Rápido (One-liner)
-`git add . && git commit -m "Actualización del sistema" && git push origin main`
+### 🚀 Bloque de comandos rápido
+```bash
+git add .
+git commit -m "Actualización del sistema"
+git push origin main
+```
+
+> **⚠️ REGLA DE ORO:** Ejecuta este bloque inmediatamente después de cada cambio para que la aplicación se actualice automáticamente en tu celular y otros dispositivos.
