@@ -1,9 +1,9 @@
 // CONFIGURACIÓN DE FIREBASE (Reemplaza con tus credenciales)
 const firebaseConfig = {
     apiKey: "Aiz...tu_api_key_real",
-    authDomain: "evaluacion-crediticia.firebaseapp.com",
-    projectId: "evaluacion-crediticia",
-    storageBucket: "evaluacion-crediticia.appspot.com",
+    authDomain: "evaluacion-crediticia-bbdb4.firebaseapp.com",
+    projectId: "evaluacion-crediticia-bbdb4",
+    storageBucket: "evaluacion-crediticia-bbdb4.appspot.com",
     messagingSenderId: "1234567890",
     appId: "1:1234567890:web:abc123def456"
 };
