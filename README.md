@@ -2,6 +2,10 @@
 
 Sistema de evaluación de riesgo crediticio construido como una PWA (Progressive Web App).
 
+## Estado del Proyecto
+- **Base de Datos:** Firebase Firestore (Sincronización en tiempo real).
+- **Alojamiento:** GitHub Pages.
+
 ## Guía de Despliegue
 
 Para actualizar la aplicación en producción (GitHub Pages), ejecuta los siguientes comandos en la terminal:
@@ -18,7 +22,7 @@ Para actualizar la aplicación en producción (GitHub Pages), ejecuta los siguie
 ### 🚀 Bloque de comandos rápido
 ```bash
 git add .
-git commit -m "Versión v3: [Breve descripción]"
+git commit -m "Versión v6: Integración completa de Firebase Firestore"
 git push origin main
 ```
 
