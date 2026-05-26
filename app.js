@@ -1,3 +1,18 @@
+// CONFIGURACIÓN DE FIREBASE (Reemplaza con tus credenciales)
+const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_PROYECTO.firebaseapp.com",
+    projectId: "TU_PROYECTO",
+    storageBucket: "TU_PROYECTO.appspot.com",
+    messagingSenderId: "TU_ID",
+    appId: "TU_APP_ID"
+};
+
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const evaluationsRef = db.collection('evaluations');
+
 // 1. Motor de Cálculo (Lógica de Negocio)
 const RiskMotor = {
     evaluate: (score, threshold) => {
@@ -18,28 +33,36 @@ window.router = {
     }
 };
 
-// 3. Memoria Local (Temporal antes de Firebase)
-let evaluations = [];
+// 3. Escucha en tiempo real de Firestore
+function initRealtimeUpdates() {
+    evaluationsRef.orderBy('date', 'desc').limit(20).onSnapshot(snapshot => {
+        const list = document.getElementById('history-list');
+        if (snapshot.empty) {
+            list.innerHTML = `<p class="text-gray-500 text-center italic">No hay registros aún...</p>`;
+            return;
+        }
 
-function renderHistory() {
-    const list = document.getElementById('history-list');
-    if (evaluations.length === 0) return;
-
-    list.innerHTML = evaluations.map(ev => `
-        <div class="p-4 rounded-xl border ${ev.result.color} flex justify-between items-center shadow-sm">
-            <div>
-                <p class="font-bold text-white">${ev.name}</p>
-                <p class="text-xs opacity-80">Score: ${ev.score} (Umbral: ${ev.threshold})</p>
-            </div>
-            <span class="font-black">${ev.result.status}</span>
-        </div>
-    `).join('');
+        list.innerHTML = snapshot.docs.map(doc => {
+            const ev = doc.data();
+            return `
+                <div class="p-4 rounded-xl border ${ev.resultColor} flex justify-between items-center shadow-sm mb-3">
+                    <div>
+                        <p class="font-bold text-white">${ev.name}</p>
+                        <p class="text-xs opacity-80">Score: ${ev.score} (Umbral: ${ev.threshold})</p>
+                    </div>
+                    <span class="font-black">${ev.resultStatus}</span>
+                </div>
+            `;
+        }).join('');
+    });
 }
 
 // 3. Controlador de Eventos
 document.addEventListener('DOMContentLoaded', () => {
+    initRealtimeUpdates();
+    
     const btnEvaluate = document.getElementById('btn-evaluate');
-    btnEvaluate.addEventListener('click', () => {
+    btnEvaluate.addEventListener('click', async () => {
         const name = document.getElementById('client-name').value;
         const score = parseInt(document.getElementById('client-score').value);
         const threshold = parseInt(document.getElementById('threshold').value);
@@ -61,9 +84,19 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         display.classList.remove('hidden');
 
-        // Guardar en el historial local
-        evaluations.unshift({ name, score, threshold, result, date: new Date() });
-        renderHistory();
+        // GUARDAR EN FIRESTORE
+        try {
+            await evaluationsRef.add({
+                name,
+                score,
+                threshold,
+                resultStatus: result.status,
+                resultColor: result.color,
+                date: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } catch (error) {
+            console.error("Error al guardar:", error);
+        }
 
         // Limpiar input nombre
         setTimeout(() => {
