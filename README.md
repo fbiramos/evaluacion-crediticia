@@ -9,16 +9,16 @@ Para actualizar la aplicación en producción (GitHub Pages), ejecuta los siguie
 1. **Stagear cambios:**
    `git add .`
 
-2. **Crear commit:**
-   `git commit -m "Descripción de los cambios realizados"`
+2. **Actualizar versión:** Incrementar el `CACHE_NAME` en `sw.js`.
 
-3. **Subir a GitHub:**
+3. **Crear commit y Subir:**
+   `git commit -m "Descripción de los cambios realizados"`
    `git push origin main`
 
 ### 🚀 Bloque de comandos rápido
 ```bash
 git add .
-git commit -m "Actualización del sistema"
+git commit -m "Versión v3: [Breve descripción]"
 git push origin main
 ```
 
