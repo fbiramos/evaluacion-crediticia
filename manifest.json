@@ -1,17 +1,16 @@
 {
-  "name": "Verificación Crediticia",
-  "short_name": "Verif. Crédito",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#f8fafc",
-  "orientation": "portrait",
-  "icons": [
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/2897/2897785.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
+    "name": "CreditEval - Motor de Riesgo",
+    "short_name": "CreditEval",
+    "start_url": "index.html",
+    "display": "standalone",
+    "background_color": "#111827",
+    "theme_color": "#111827",
+    "icons": [
+        {
+            "src": "https://cdn-icons-png.flaticon.com/512/584/584026.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
 }

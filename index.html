@@ -1,38 +1,75 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Verificación Crediticia</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#f8fafc">
+    <title>CreditEval - Motor de Riesgo</title>
+    <!-- Tailwind CSS para diseño rápido -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase SDKs -->
-    <script type="module" src="app.js?v=1.1.0"></script>
-    <style>
-        body { -webkit-tap-highlight-color: transparent; }
-        .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
 </head>
-<body class="bg-slate-50 text-slate-900 h-full font-sans overflow-hidden">
-    
-    <!-- App Container -->
-    <div id="app" class="flex flex-col h-full max-w-md mx-auto relative">
-        <!-- Renderizado Dinámico aquí -->
-        <div id="view-container" class="flex-1 overflow-y-auto p-4 pb-24"></div>
+<body class="bg-gray-900 text-gray-100 antialiased font-sans">
 
-        <!-- Botón de Acción Principal (Flotante) -->
-        <div id="fab" class="hidden fixed bottom-8 right-8 z-50">
-            <button onclick="window.router.navigate('/nuevo')" class="bg-blue-600 hover:bg-blue-500 w-16 h-16 rounded-full shadow-2xl flex items-center justify-center text-3xl">
-                +
-            </button>
+    <nav class="p-4 bg-gray-800 border-b border-gray-700 flex justify-between items-center shadow-lg">
+        <h1 class="text-xl font-bold text-blue-400">CreditEval</h1>
+        <div id="nav-actions" class="space-x-2">
+            <button onclick="router.navigate('home')" class="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded transition-colors">Nueva Evaluación</button>
+            <button onclick="router.navigate('history')" class="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded transition-colors">Historial</button>
         </div>
-    </div>
+    </nav>
 
-    <!-- Notificación Offline -->
-    <div id="offline-toast" class="hidden fixed top-4 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold z-[100]">
-        Modo Offline Activo
-    </div>
+    <main id="app-container" class="container mx-auto px-4 py-6">
+        <!-- VISTA: Formulario -->
+        <section id="view-home" class="view">
+            <div class="max-w-md mx-auto bg-gray-800 p-6 rounded-2xl shadow-xl border border-gray-700">
+                <h2 class="text-2xl font-semibold mb-6 text-white text-center">Analizador de Crédito</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Cliente</label>
+                        <input type="text" id="client-name" placeholder="Nombre completo" class="w-full bg-gray-700 border-none rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Puntaje (1-10)</label>
+                            <input type="number" id="client-score" value="5" min="1" max="10" class="w-full bg-gray-700 border-none rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none text-center text-xl font-bold">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Umbral Requerido</label>
+                            <input type="number" id="threshold" value="7" min="1" max="10" class="w-full bg-gray-700 border-none rounded-lg p-3 text-blue-300 focus:ring-2 focus:ring-blue-500 outline-none text-center text-xl font-bold">
+                        </div>
+                    </div>
+                    <button id="btn-evaluate" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95 mt-4">
+                        EJECUTAR EVALUACIÓN
+                    </button>
+                </div>
 
+                <!-- Contenedor para el resultado inmediato -->
+                <div id="result-display" class="mt-6 hidden transition-all duration-300">
+                </div>
+            </div>
+        </section>
+
+        <!-- VISTA: Historial -->
+        <section id="view-history" class="view hidden">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Registro de Evaluaciones</h2>
+            <div id="history-list" class="space-y-3 max-w-lg mx-auto">
+                <p class="text-gray-500 text-center italic">No hay registros aún...</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Cargamos la lógica al final -->
+    <script src="app.js"></script>
+    <script>
+        // Registro del Service Worker para actualizaciones
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('SW registrado con éxito');
+                });
+            });
+        }
+    </script>
 </body>
 </html>

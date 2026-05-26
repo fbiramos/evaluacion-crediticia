@@ -1,0 +1,10 @@
+/* Ocultar vistas que no están activas */
+.view.hidden {
+    display: none;
+}
+
+/* Evitar scroll horizontal en móviles */
+body {
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
