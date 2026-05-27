@@ -7,12 +7,24 @@ Sistema de evaluación de riesgo crediticio construido como una PWA (Progressive
 - **Alojamiento Principal:** [GitHub Pages](https://fbiramos.github.io/evaluacion-crediticia/)
 - **Alojamiento Alternativo:** [Firebase Hosting](https://evaluacion-crediticia-bbdb4.web.app)
 
-## 🚀 Despliegue Automático
-Ya no necesitas actualizar archivos manualmente. Simplemente usa el comando de abajo o presiona `Ctrl+Shift+B` en VS Code.
+## Guía de Despliegue
 
-### ⚡ Comando de un solo clic
+Para actualizar la aplicación en producción (GitHub Pages), ejecuta los siguientes comandos en la terminal:
+
+1. **Stagear cambios:**
+   `git add .`
+
+2. **Actualizar versión:** Incrementar el `CACHE_NAME` en `sw.js`.
+
+3. **Crear commit y Subir:**
+   `git commit -m "Descripción de los cambios realizados"`
+   `git push origin main`
+
+### 🚀 Bloque de comandos rápido
 ```bash
-powershell -Command "(Get-Content sw.js) -replace 'v\d+', ('v' + (Get-Date -Format 'MMddHHmm')) | Set-Content sw.js; git add . ; git commit -m 'Auto-update' ; git push origin main"
+git add .
+git commit -m "Versión v26: Estabilización de marca y automatización total"
+git push origin main
 ```
 
 > **⚠️ REGLA DE ORO:** Ejecuta este bloque inmediatamente después de cada cambio para que la aplicación se actualice automáticamente en tu celular y otros dispositivos.

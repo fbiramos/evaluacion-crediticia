@@ -35,6 +35,12 @@ body {
 .custom-input { background-color: var(--bg-input); color: var(--texto-principal); border: 1px solid var(--border-color); }
 .custom-nav { background-color: var(--bg-tarjeta); border-bottom: 1px solid var(--border-color); }
 .text-accent { color: var(--color-acento); }
+
+.brand-logo {
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-style: italic;
+}
+
 .text-secondary { color: var(--color-secundario); }
 .text-muted { color: var(--texto-secundario); }
 
