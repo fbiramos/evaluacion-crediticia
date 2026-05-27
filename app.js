@@ -46,6 +46,13 @@ window.deleteEvaluation = async (id) => {
     }
 };
 
+// Escuchar cambios en el Service Worker para recargar la página
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
+    });
+}
+
 // Manejador de Temas (Claro/Oscuro)
 window.themeManager = {
     init: () => {

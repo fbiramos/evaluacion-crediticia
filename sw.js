@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crediteval-v05262313';
+const CACHE_NAME = 'crediteval-v05262316';
 const ASSETS = [
     './',
     './index.html',
@@ -10,7 +10,16 @@ const ASSETS = [
 // Instalación y cacheo
 self.addEventListener('install', e => {
     e.waitUntil(
-        caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+        caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting())
+    );
+});
+
+// Limpieza de caches antiguos y toma de control inmediato
+self.addEventListener('activate', e => {
+    e.waitUntil(
+        caches.keys().then(keys => Promise.all(
+            keys.map(key => key !== CACHE_NAME ? caches.delete(key) : null)
+        )).then(() => self.clients.claim())
     );
 });
 
