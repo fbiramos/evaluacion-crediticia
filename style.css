@@ -4,7 +4,7 @@
     --bg-tarjeta: #FFFFFF;
     --texto-principal: #1A202C;
     --texto-secundario: #4A5568;
-    --color-acento: #2B6CB0;
+    --color-acento: #D53F8C; /* Magenta profesional */
     --bg-input: #F7FAFC;
     --border-color: #E2E8F0;
     color-scheme: light;
@@ -16,7 +16,7 @@ body.dark-theme {
     --bg-tarjeta: #1F2937;
     --texto-principal: #F3F4F6;
     --texto-secundario: #9CA3AF;
-    --color-acento: #60A5FA;
+    --color-acento: #D53F8C; /* Magenta profesional */
     --bg-input: #374151;
     --border-color: #374151;
     color-scheme: dark;
