@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crediteval-v26';
+const CACHE_NAME = 'crediteval-v27';
 const ASSETS = [
     './',
     './index.html',

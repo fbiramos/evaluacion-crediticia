@@ -44,6 +44,17 @@ body {
 .text-secondary { color: var(--color-secundario); }
 .text-muted { color: var(--texto-secundario); }
 
+/* Botón de acción personalizado */
+.btn-primary-custom {
+    background-color: var(--bg-principal) !important;
+    color: var(--texto-principal) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.btn-primary-custom:hover {
+    filter: brightness(0.95);
+}
+
 /* Ajustes de compatibilidad Tailwind */
 .bg-gray-900 { background-color: var(--bg-principal) !important; }
 .bg-gray-800 { background-color: var(--bg-tarjeta) !important; }
