@@ -1,11 +1,12 @@
 // CONFIGURACIÓN DE FIREBASE (Reemplaza con tus credenciales)
 const firebaseConfig = {
-    apiKey: "Aiz...tu_api_key_real",
-    authDomain: "evaluacion-crediticia.firebaseapp.com",
-    projectId: "evaluacion-crediticia",
-    storageBucket: "evaluacion-crediticia.appspot.com",
-    messagingSenderId: "1234567890",
-    appId: "1:1234567890:web:abc123def456"
+   apiKey: "AIzaSyDWKdGjpvjQ013Lvn9eicuBeDKJFLf5JLc",
+  authDomain: "evaluacion-crediticia-bbdb4.firebaseapp.com",
+  projectId: "evaluacion-crediticia-bbdb4",
+  storageBucket: "evaluacion-crediticia-bbdb4.firebasestorage.app",
+  messagingSenderId: "512560821833",
+  appId: "1:512560821833:web:9a41a7b75e50bdda307198"
+
 };
 
 // Inicializar Firebase
@@ -33,6 +34,18 @@ window.router = {
     }
 };
 
+// Función para borrar una evaluación
+window.deleteEvaluation = async (id) => {
+    if (confirm("¿Estás seguro de eliminar esta evaluación?")) {
+        try {
+            await evaluationsRef.doc(id).delete();
+            console.log("Documento eliminado");
+        } catch (error) {
+            console.error("Error al eliminar:", error);
+        }
+    }
+};
+
 // 3. Escucha en tiempo real de Firestore
 function initRealtimeUpdates() {
     evaluationsRef.orderBy('date', 'desc').limit(20).onSnapshot(snapshot => {
@@ -44,13 +57,18 @@ function initRealtimeUpdates() {
 
         list.innerHTML = snapshot.docs.map(doc => {
             const ev = doc.data();
+            // Formatear la fecha de Firestore a algo legible
+            const dateStr = ev.date ? ev.date.toDate().toLocaleString('es-BO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Procesando...';
+            
             return `
                 <div class="p-4 rounded-xl border ${ev.resultColor} flex justify-between items-center shadow-sm mb-3">
-                    <div>
+                    <div class="flex-1">
                         <p class="font-bold text-white">${ev.name}</p>
-                        <p class="text-xs opacity-80">Score: ${ev.score} (Umbral: ${ev.threshold})</p>
+                        <p class="text-[10px] opacity-60 uppercase">${dateStr}</p>
+                        <p class="text-xs opacity-80 mt-1">Score: ${ev.score} / Min: ${ev.threshold}</p>
                     </div>
-                    <span class="font-black">${ev.resultStatus}</span>
+                    <span class="font-black text-sm mr-4">${ev.resultStatus}</span>
+                    <button onclick="deleteEvaluation('${doc.id}')" class="text-gray-500 hover:text-red-400 p-2 transition-colors">🗑️</button>
                 </div>
             `;
         }).join('');
