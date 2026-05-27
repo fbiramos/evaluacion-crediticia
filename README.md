@@ -23,7 +23,7 @@ Para actualizar la aplicación en producción (GitHub Pages), ejecuta los siguie
 ### 🚀 Bloque de comandos rápido
 ```bash
 git add .
-git commit -m "Versión v14: Despliegue exitoso en Firebase Hosting"
+git commit -m "Versión v16: Automatización total con GitHub Actions"
 git push origin main
 ```
 
