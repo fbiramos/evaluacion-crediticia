@@ -5,6 +5,7 @@
     --texto-principal: #1A202C;
     --texto-secundario: #4A5568;
     --color-acento: #FF00FF; /* Fucsia vibrante */
+    --color-secundario: #0000FF; /* Azul */
     --bg-input: #F7FAFC;
     --border-color: #E2E8F0;
     color-scheme: light;
@@ -17,6 +18,7 @@ body.dark-theme {
     --texto-principal: #F3F4F6;
     --texto-secundario: #9CA3AF;
     --color-acento: #FF00FF; /* Fucsia vibrante */
+    --color-secundario: #60A5FA; /* Azul claro para modo oscuro */
     --bg-input: #374151;
     --border-color: #374151;
     color-scheme: dark;
@@ -33,6 +35,7 @@ body {
 .custom-input { background-color: var(--bg-input); color: var(--texto-principal); border: 1px solid var(--border-color); }
 .custom-nav { background-color: var(--bg-tarjeta); border-bottom: 1px solid var(--border-color); }
 .text-accent { color: var(--color-acento); }
+.text-secondary { color: var(--color-secundario); }
 .text-muted { color: var(--texto-secundario); }
 
 /* Ajustes de compatibilidad Tailwind */
