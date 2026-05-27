@@ -22,7 +22,7 @@ Para actualizar la aplicación en producción (GitHub Pages), ejecuta los siguie
 ### 🚀 Bloque de comandos rápido
 ```bash
 git add .
-git commit -m "Versión v6: Integración completa de Firebase Firestore"
+git commit -m "Versión v7: Cambio de nombre y actualización de link"
 git push origin main
 ```
 
