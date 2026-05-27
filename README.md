@@ -23,7 +23,7 @@ Para actualizar la aplicación en producción (GitHub Pages), ejecuta los siguie
 ### 🚀 Bloque de comandos rápido
 ```bash
 git add .
-git commit -m "Versión v16: Automatización total con GitHub Actions"
+git commit -m "Versión v22: Despliegue con un solo clic"
 git push origin main
 ```
 

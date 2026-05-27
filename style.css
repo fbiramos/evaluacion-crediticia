@@ -1,3 +1,26 @@
+/* CONFIGURACIÓN DE COLORES (Cámbialos aquí más adelante) */
+:root {
+    --bg-principal: #111827;   /* Fondo de la pantalla */
+    --bg-tarjeta: #1f2937;     /* Fondo de los cuadros/cards */
+    --texto-principal: #f3f4f6; /* Color de las letras */
+    --color-acento: #60a5fa;   /* Color de títulos y detalles */
+}
+
+/* Forzar que el navegador no aplique temas automáticos */
+:root {
+    color-scheme: only dark;
+}
+
+body {
+    background-color: var(--bg-principal) !important;
+    color: var(--texto-principal) !important;
+}
+
+/* Sobrescribir clases de Tailwind para usar nuestras variables */
+.bg-gray-900 { background-color: var(--bg-principal) !important; }
+.bg-gray-800 { background-color: var(--bg-tarjeta) !important; }
+.text-blue-400 { color: var(--color-acento) !important; }
+
 /* Ocultar vistas que no están activas */
 .view.hidden {
     display: none;
