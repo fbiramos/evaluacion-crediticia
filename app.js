@@ -75,7 +75,7 @@ function initRealtimeUpdates() {
             return `
                 <div class="p-4 rounded-xl border ${ev.resultColor} bg-white flex justify-between items-center shadow-sm mb-3">
                     <div class="flex-1 text-gray-800">
-                        <p class="font-bold text-gray-900">${ev.name}</p>
+                        <p class="font-bold text-gray-900">${ev.name} <span class="text-[11px] font-normal opacity-70">(${ev.age || 'N/A'} años)</span></p>
                         <p class="text-[10px] opacity-60 uppercase">${dateStr}</p>
                         <p class="text-xs opacity-80 mt-1">Score: ${ev.score} / Min: ${ev.threshold}</p>
                     </div>
@@ -95,6 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnEvaluate = document.getElementById('btn-evaluate');
     btnEvaluate.addEventListener('click', async () => {
         const rawName = document.getElementById('client-name').value;
+        const age = parseInt(document.getElementById('client-age').value);
         const score = parseInt(document.getElementById('client-score').value);
         const threshold = parseInt(document.getElementById('threshold').value);
 
@@ -103,6 +104,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Validación básica
         if (!name) {
             alert("Por favor, ingresa un nombre válido.");
+            return;
+        }
+
+        if (!age || age < 18) {
+            alert("Por favor, ingresa una edad válida (mínimo 18 años).");
             return;
         }
 
@@ -131,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await evaluationsRef.add({
                 name,
+                age,
                 score,
                 threshold,
                 resultStatus: result.status,
@@ -149,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Limpiar input nombre
         setTimeout(() => {
             document.getElementById('client-name').value = '';
+            document.getElementById('client-age').value = '';
         }, 2000);
     });
 
