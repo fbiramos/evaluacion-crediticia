@@ -81,12 +81,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const btnEvaluate = document.getElementById('btn-evaluate');
     btnEvaluate.addEventListener('click', async () => {
-        const name = document.getElementById('client-name').value;
+        const rawName = document.getElementById('client-name').value;
         const score = parseInt(document.getElementById('client-score').value);
         const threshold = parseInt(document.getElementById('threshold').value);
 
+        const name = rawName.trim().toUpperCase();
+
         // Validación básica
-        if (!name.trim()) {
+        if (!name) {
             alert("Por favor, ingresa un nombre válido.");
             return;
         }
