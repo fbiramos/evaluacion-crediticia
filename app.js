@@ -46,6 +46,18 @@ window.deleteEvaluation = async (id) => {
     }
 };
 
+// Manejador de Temas (Claro/Oscuro)
+window.themeManager = {
+    init: () => {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') document.body.classList.add('dark-theme');
+    },
+    toggle: () => {
+        const isDark = document.body.classList.toggle('dark-theme');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+};
+
 // 3. Escucha en tiempo real de Firestore
 function initRealtimeUpdates() {
     evaluationsRef.orderBy('date', 'desc').limit(20).onSnapshot(snapshot => {
@@ -77,6 +89,7 @@ function initRealtimeUpdates() {
 
 // 3. Controlador de Eventos
 document.addEventListener('DOMContentLoaded', () => {
+    themeManager.init();
     initRealtimeUpdates();
     
     const btnEvaluate = document.getElementById('btn-evaluate');

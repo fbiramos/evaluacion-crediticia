@@ -23,7 +23,7 @@ Para actualizar la aplicación en producción (GitHub Pages), ejecuta los siguie
 ### 🚀 Bloque de comandos rápido
 ```bash
 git add .
-git commit -m "Versión v23: Interfaz crema bajito (Light Theme)"
+git commit -m "Versión v24: Agregada vista de Configuraciones y Modo Oscuro"
 git push origin main
 ```
 

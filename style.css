@@ -1,28 +1,46 @@
-/* CONFIGURACIÓN DE COLORES (Cámbialos aquí más adelante) */
 :root {
-    --bg-principal: #FFFDF0;   /* Crema bajito */
-    --bg-tarjeta: #FFFFFF;     /* Blanco puro para tarjetas */
-    --texto-principal: #1A202C; /* Gris muy oscuro para lectura */
-    --color-acento: #2B6CB0;   /* Azul profesional */
-}
-
-/* Forzar que el navegador no aplique temas automáticos */
-:root {
+    /* TEMA CLARO (Default - Crema) */
+    --bg-principal: #FFFDF0;
+    --bg-tarjeta: #FFFFFF;
+    --texto-principal: #1A202C;
+    --texto-secundario: #4A5568;
+    --color-acento: #2B6CB0;
+    --bg-input: #F7FAFC;
+    --border-color: #E2E8F0;
     color-scheme: light;
 }
 
-body {
-    background-color: var(--bg-principal) !important;
-    color: var(--texto-principal) !important;
+body.dark-theme {
+    /* TEMA OSCURO (Profesional) */
+    --bg-principal: #111827;
+    --bg-tarjeta: #1F2937;
+    --texto-principal: #F3F4F6;
+    --texto-secundario: #9CA3AF;
+    --color-acento: #60A5FA;
+    --bg-input: #374151;
+    --border-color: #374151;
+    color-scheme: dark;
 }
 
-/* Sobrescribir clases de Tailwind para usar nuestras variables */
+body {
+    background-color: var(--bg-principal);
+    color: var(--texto-principal);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Clases dinámicas adaptadas al tema */
+.custom-card { background-color: var(--bg-tarjeta); border: 1px solid var(--border-color); }
+.custom-input { background-color: var(--bg-input); color: var(--texto-principal); border: 1px solid var(--border-color); }
+.custom-nav { background-color: var(--bg-tarjeta); border-bottom: 1px solid var(--border-color); }
+.text-accent { color: var(--color-acento); }
+.text-muted { color: var(--texto-secundario); }
+
+/* Ajustes de compatibilidad Tailwind */
 .bg-gray-900 { background-color: var(--bg-principal) !important; }
 .bg-gray-800 { background-color: var(--bg-tarjeta) !important; }
 .text-blue-400 { color: var(--color-acento) !important; }
 .text-white { color: var(--texto-principal) !important; }
-.bg-gray-700 { background-color: #F7FAFC !important; border: 1px solid #E2E8F0 !important; color: #1A202C !important; }
-.border-gray-700 { border-color: #E2E8F0 !important; }
+.bg-gray-700 { background-color: var(--bg-input) !important; border: 1px solid var(--border-color) !important; color: var(--texto-principal) !important; }
 
 /* Ocultar vistas que no están activas */
 .view.hidden {

@@ -3,42 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Evita que el sistema operativo cambie los colores de la app -->
-    <meta name="color-scheme" content="light">
     <title>CreditEval - Motor de Riesgo</title>
     <!-- Tailwind CSS para diseño rápido -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
 </head>
-<body class="bg-gray-900 text-gray-800 antialiased font-sans">
+<body class="bg-gray-900 antialiased font-sans">
 
-    <nav class="p-4 bg-white border-b border-gray-200 flex justify-between items-center shadow-sm">
-        <h1 class="text-xl font-bold text-blue-400">CreditEval</h1>
-        <div id="nav-actions" class="space-x-2">
-            <button onclick="router.navigate('home')" class="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded transition-colors">Nueva Evaluación</button>
-            <button onclick="router.navigate('history')" class="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded transition-colors">Historial</button>
+    <nav class="p-4 custom-nav flex justify-between items-center shadow-sm">
+        <h1 class="text-xl font-bold text-accent">CreditEval</h1>
+        <div id="nav-actions" class="space-x-2 flex items-center">
+            <button onclick="router.navigate('home')" class="text-[10px] bg-gray-700 px-2 py-1 rounded uppercase font-bold">Nueva</button>
+            <button onclick="router.navigate('history')" class="text-[10px] bg-gray-700 px-2 py-1 rounded uppercase font-bold">Historial</button>
+            <button onclick="router.navigate('settings')" class="p-1 rounded-full hover:bg-gray-200 transition-colors" title="Configuraciones">⚙️</button>
         </div>
     </nav>
 
     <main id="app-container" class="container mx-auto px-4 py-6">
         <!-- VISTA: Formulario -->
         <section id="view-home" class="view">
-            <div class="max-w-md mx-auto bg-gray-800 p-6 rounded-2xl shadow-xl border border-gray-700">
+            <div class="max-w-md mx-auto custom-card p-6 rounded-2xl shadow-xl">
                 <h2 class="text-2xl font-semibold mb-6 text-white text-center">Evaluacion crediticia</h2>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Cliente</label>
-                        <input type="text" id="client-name" placeholder="Nombre completo" class="w-full bg-gray-700 border-none rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Cliente</label>
+                        <input type="text" id="client-name" placeholder="Nombre completo" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                     <div class="flex gap-4">
                         <div class="flex-1">
-                            <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Puntaje (1-10)</label>
-                            <input type="number" id="client-score" value="5" min="1" max="10" class="w-full bg-gray-700 border-none rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none text-center text-xl font-bold">
+                            <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Puntaje</label>
+                            <input type="number" id="client-score" value="5" min="1" max="10" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none text-center text-xl font-bold">
                         </div>
                         <div class="flex-1">
-                            <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Umbral Requerido</label>
-                            <input type="number" id="threshold" value="7" min="1" max="10" class="w-full bg-gray-700 border-none rounded-lg p-3 text-blue-300 focus:ring-2 focus:ring-blue-500 outline-none text-center text-xl font-bold">
+                            <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Umbral</label>
+                            <input type="number" id="threshold" value="7" min="1" max="10" class="w-full custom-input rounded-lg p-3 text-accent focus:ring-2 focus:ring-blue-500 outline-none text-center text-xl font-bold">
                         </div>
                     </div>
                     <button id="btn-evaluate" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95 mt-4">
@@ -48,6 +47,27 @@
 
                 <!-- Contenedor para el resultado inmediato -->
                 <div id="result-display" class="mt-6 hidden transition-all duration-300">
+                </div>
+            </div>
+        </section>
+
+        <!-- VISTA: Configuraciones -->
+        <section id="view-settings" class="view hidden">
+            <div class="max-w-md mx-auto custom-card p-6 rounded-2xl shadow-xl">
+                <h2 class="text-2xl font-semibold mb-6 text-center">Configuraciones</h2>
+                
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                        <span class="font-medium">Modo Oscuro</span>
+                        <button onclick="themeManager.toggle()" id="theme-toggle-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm">Cambiar</button>
+                    </div>
+
+                    <div class="pt-4 border-t border-gray-200">
+                        <p class="text-[10px] text-muted uppercase font-bold mb-2 tracking-widest">Información de App</p>
+                        <p class="text-sm">Versión: <span id="app-version">v24.0.0</span></p>
+                        <p class="text-sm">Estado: <span class="text-green-500 font-bold">Online</span></p>
+                        <p class="text-xs text-muted mt-4 text-center">© 2024 CreditEval Professional System</p>
+                    </div>
                 </div>
             </div>
         </section>
