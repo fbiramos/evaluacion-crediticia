@@ -20,7 +20,7 @@ const RiskMotor = {
         const approved = score >= threshold;
         return {
             status: approved ? 'APROBADO' : 'RECHAZADO',
-            color: approved ? 'bg-green-900/30 text-green-400 border-green-500' : 'bg-red-900/30 text-red-400 border-red-500',
+            color: approved ? 'bg-green-100 text-green-800 border-green-300' : 'bg-red-100 text-red-800 border-red-300',
             icon: approved ? '✅' : '❌'
         };
     }
@@ -61,9 +61,9 @@ function initRealtimeUpdates() {
             const dateStr = ev.date ? ev.date.toDate().toLocaleString('es-BO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Procesando...';
             
             return `
-                <div class="p-4 rounded-xl border ${ev.resultColor} flex justify-between items-center shadow-sm mb-3">
-                    <div class="flex-1">
-                        <p class="font-bold text-white">${ev.name}</p>
+                <div class="p-4 rounded-xl border ${ev.resultColor} bg-white flex justify-between items-center shadow-sm mb-3">
+                    <div class="flex-1 text-gray-800">
+                        <p class="font-bold text-gray-900">${ev.name}</p>
                         <p class="text-[10px] opacity-60 uppercase">${dateStr}</p>
                         <p class="text-xs opacity-80 mt-1">Score: ${ev.score} / Min: ${ev.threshold}</p>
                     </div>

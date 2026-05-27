@@ -1,14 +1,14 @@
 /* CONFIGURACIÓN DE COLORES (Cámbialos aquí más adelante) */
 :root {
-    --bg-principal: #111827;   /* Fondo de la pantalla */
-    --bg-tarjeta: #1f2937;     /* Fondo de los cuadros/cards */
-    --texto-principal: #f3f4f6; /* Color de las letras */
-    --color-acento: #60a5fa;   /* Color de títulos y detalles */
+    --bg-principal: #FFFDF0;   /* Crema bajito */
+    --bg-tarjeta: #FFFFFF;     /* Blanco puro para tarjetas */
+    --texto-principal: #1A202C; /* Gris muy oscuro para lectura */
+    --color-acento: #2B6CB0;   /* Azul profesional */
 }
 
 /* Forzar que el navegador no aplique temas automáticos */
 :root {
-    color-scheme: only dark;
+    color-scheme: light;
 }
 
 body {
@@ -20,6 +20,9 @@ body {
 .bg-gray-900 { background-color: var(--bg-principal) !important; }
 .bg-gray-800 { background-color: var(--bg-tarjeta) !important; }
 .text-blue-400 { color: var(--color-acento) !important; }
+.text-white { color: var(--texto-principal) !important; }
+.bg-gray-700 { background-color: #F7FAFC !important; border: 1px solid #E2E8F0 !important; color: #1A202C !important; }
+.border-gray-700 { border-color: #E2E8F0 !important; }
 
 /* Ocultar vistas que no están activas */
 .view.hidden {
