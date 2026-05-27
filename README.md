@@ -4,7 +4,8 @@ Sistema de evaluación de riesgo crediticio construido como una PWA (Progressive
 
 ## Estado del Proyecto
 - **Base de Datos:** Firebase Firestore (Sincronización en tiempo real).
-- **Alojamiento:** GitHub Pages.
+- **Alojamiento Principal:** [GitHub Pages](https://fbiramos.github.io/evaluacion-crediticia/)
+- **Alojamiento Alternativo:** [Firebase Hosting](https://evaluacion-crediticia-bbdb4.web.app)
 
 ## Guía de Despliegue
 
@@ -22,7 +23,7 @@ Para actualizar la aplicación en producción (GitHub Pages), ejecuta los siguie
 ### 🚀 Bloque de comandos rápido
 ```bash
 git add .
-git commit -m "Versión v7: Cambio de nombre y actualización de link"
+git commit -m "Versión v9: Actualización de enlaces de instalación Firebase"
 git push origin main
 ```
 
