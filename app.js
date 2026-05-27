@@ -85,17 +85,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const score = parseInt(document.getElementById('client-score').value);
         const threshold = parseInt(document.getElementById('threshold').value);
 
-        if (!name) {
-            alert("Por favor, ingresa el nombre del cliente.");
+        // Validación básica
+        if (!name.trim()) {
+            alert("Por favor, ingresa un nombre válido.");
             return;
         }
+
+        if (score < 1 || score > 10 || threshold < 1 || threshold > 10) {
+            alert("Los valores deben estar entre 1 y 10.");
+            return;
+        }
+
+        // Bloquear botón para evitar doble click
+        btnEvaluate.disabled = true;
+        btnEvaluate.innerText = "PROCESANDO...";
 
         const result = RiskMotor.evaluate(score, threshold);
 
         // Mostrar resultado en la UI (en lugar de alert)
         const display = document.getElementById('result-display');
         display.innerHTML = `
-            <div class="p-4 rounded-xl border-2 ${result.color} text-center animate-bounce">
+            <div class="p-4 rounded-xl border-2 ${result.color} text-center animate-in fade-in zoom-in duration-300">
                 <p class="text-sm uppercase tracking-widest font-bold">Resultado</p>
                 <h3 class="text-3xl font-black">${result.icon} ${result.status}</h3>
             </div>
@@ -114,11 +124,24 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         } catch (error) {
             console.error("Error al guardar:", error);
+            alert("Error de conexión con la base de datos.");
+        } finally {
+            // Desbloquear botón
+            btnEvaluate.disabled = false;
+            btnEvaluate.innerText = "EJECUTAR EVALUACIÓN";
         }
 
         // Limpiar input nombre
         setTimeout(() => {
             document.getElementById('client-name').value = '';
         }, 2000);
+    });
+
+    // Pulido: Limpiar el resultado visual cuando el usuario empiece a escribir un nuevo nombre
+    document.getElementById('client-name').addEventListener('input', () => {
+        const display = document.getElementById('result-display');
+        if (!display.classList.contains('hidden')) {
+            display.classList.add('hidden');
+        }
     });
 });
