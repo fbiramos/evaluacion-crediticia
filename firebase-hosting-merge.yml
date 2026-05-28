@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Auto-Versioning (RZBRO$ Style)
         run: |
-          # Extraer versión del mensaje del commit (ej: v108) o usar el ID de ejecución
+          # Extraer versión del mensaje del commit (ej: v7) o usar el ID de ejecución
           COMMIT_MSG=$(git log -1 --pretty=%B)
           VERSION=$(echo "$COMMIT_MSG" | grep -oE "v[0-9]+" | head -1 || echo "v${{ github.run_number }}")
           VER_NUM=${VERSION#v}
