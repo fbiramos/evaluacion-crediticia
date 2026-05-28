@@ -77,7 +77,7 @@ function initRealtimeUpdates() {
                     <div class="flex-1 text-gray-800">
                         <p class="font-bold text-gray-900">${ev.name}</p>
                         <p class="text-[10px] opacity-60 uppercase">${dateStr}</p>
-                        <p class="text-xs opacity-80 mt-1">Score: ${ev.score}/${ev.threshold} • ${ev.creditType || 'N/A'} • <span class="font-semibold">Bs. ${ev.income || 0}</span></p>
+                        <p class="text-xs opacity-80 mt-1">Score: ${ev.score}/${ev.threshold} • ${ev.maritalStatus || 'N/A'} • ${ev.creditType || 'N/A'} • <span class="font-semibold">Bs. ${ev.income || 0}</span></p>
                     </div>
                     <span class="font-black text-sm mr-4">${ev.resultStatus}</span>
                     <button onclick="deleteEvaluation('${doc.id}')" class="text-gray-500 hover:text-red-400 p-2 transition-colors">🗑️</button>
@@ -99,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnEvaluate.addEventListener('click', async () => {
         const rawName = document.getElementById('client-name').value;
         const creditType = document.getElementById('client-credit-type').value;
+        const maritalStatus = document.getElementById('client-marital-status').value;
         const income = parseFloat(document.getElementById('client-income').value);
         const score = parseInt(document.getElementById('client-score').value);
         const threshold = parseInt(document.getElementById('threshold').value);
@@ -113,6 +114,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!creditType) {
             alert("Por favor, selecciona un tipo de crédito.");
+            return;
+        }
+
+        if (!maritalStatus) {
+            alert("Por favor, selecciona el estado civil.");
             return;
         }
 
@@ -147,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await evaluationsRef.add({
                 name,
                 creditType,
+                maritalStatus,
                 income,
                 score,
                 threshold,
@@ -167,6 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             document.getElementById('client-name').value = '';
             document.getElementById('client-credit-type').value = '';
+            document.getElementById('client-marital-status').value = '';
             document.getElementById('client-income').value = '';
         }, 2000);
     });
