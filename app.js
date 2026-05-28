@@ -84,6 +84,9 @@ function initRealtimeUpdates() {
                 </div>
             `;
         }).join('');
+    }, error => {
+        console.error("Error en tiempo real:", error);
+        document.getElementById('history-list').innerHTML = `<p class="text-red-500 text-center uppercase font-bold">Error de sincronización</p>`;
     });
 }
 
