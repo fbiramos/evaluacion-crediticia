@@ -46,7 +46,7 @@ window.deleteEvaluation = async (id) => {
     }
 };
 
-// Escuchar cambios en el Service Worker para recargar la página
+// Recargar automáticamente cuando el nuevo SW tome el control
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         window.location.reload();
@@ -84,7 +84,7 @@ function initRealtimeUpdates() {
                     <div class="flex-1 text-gray-800">
                         <p class="font-bold text-gray-900">${ev.name} <span class="text-[11px] font-normal opacity-70">(${ev.age || 'N/A'} años)</span></p>
                         <p class="text-[10px] opacity-60 uppercase">${dateStr}</p>
-                        <p class="text-xs opacity-80 mt-1">Score: ${ev.score} / Min: ${ev.threshold}</p>
+                        <p class="text-xs opacity-80 mt-1">Score: ${ev.score} / Min: ${ev.threshold} • <span class="font-semibold">${ev.creditType || 'N/A'}</span></p>
                     </div>
                     <span class="font-black text-sm mr-4">${ev.resultStatus}</span>
                     <button onclick="deleteEvaluation('${doc.id}')" class="text-gray-500 hover:text-red-400 p-2 transition-colors">🗑️</button>
@@ -103,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnEvaluate.addEventListener('click', async () => {
         const rawName = document.getElementById('client-name').value;
         const age = parseInt(document.getElementById('client-age').value);
+        const creditType = document.getElementById('client-credit-type').value;
         const score = parseInt(document.getElementById('client-score').value);
         const threshold = parseInt(document.getElementById('threshold').value);
 
@@ -116,6 +117,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!age || age < 18) {
             alert("Por favor, ingresa una edad válida (mínimo 18 años).");
+            return;
+        }
+
+        if (!creditType) {
+            alert("Por favor, selecciona un tipo de crédito.");
             return;
         }
 
@@ -145,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await evaluationsRef.add({
                 name,
                 age,
+                creditType,
                 score,
                 threshold,
                 resultStatus: result.status,
@@ -164,6 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             document.getElementById('client-name').value = '';
             document.getElementById('client-age').value = '';
+            document.getElementById('client-credit-type').value = '';
         }, 2000);
     });
 

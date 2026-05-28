@@ -4,7 +4,7 @@
         {
             "label": "🚀 Desplegar a GitHub",
             "type": "shell",
-            "command": "powershell -Command \"(Get-Content sw.js) -replace 'v\\d+', ('v' + (Get-Date -Format 'MMddHHmm')) | Set-Content sw.js; git add .; git commit -m ('🚀 Deploy ' + (Get-Date -Format 'HH:mm')); git push origin main; firebase deploy\"",
+            "command": "powershell -ExecutionPolicy Bypass -File ./deploy.ps1",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
