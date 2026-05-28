@@ -8,6 +8,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Auto-Versioning (RZBRO$ Style)
+        run: |
+          # Extraer versión del mensaje del commit (ej: v108) o usar el ID de ejecución
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          VERSION=$(echo "$COMMIT_MSG" | grep -oE "v[0-9]+" | head -1 || echo "v${{ github.run_number }}")
+          VER_NUM=${VERSION#v}
+          echo "Desplegando versión: $VERSION"
+
+          # Inyectar versión en los archivos para forzar la actualización en los clientes
+          sed -i "s/CACHE_NAME = 'v[0-9]\{1,\}'/CACHE_NAME = '$VERSION'/g" sw.js
+          sed -i "s/?v=[0-9]\{1,\}/?v=$VER_NUM/g" index.html
+          sed -i "s/id=\"app-version\">v[0-9]\{1,\}/id=\"app-version\">$VERSION/g" index.html
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
