@@ -1,5 +1,8 @@
 # Script de despliegue automático
 
+# Permite pasar un mensaje personalizado al script. Ej: .\deploy.ps1 "Mi nuevo cambio"
+param($commitMessage = "")
+
 # Forzar codificación UTF8 para que los emojis se vean bien en la terminal
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
@@ -24,8 +27,13 @@ $html = $html -replace "\?v=$v", "?v=$nv" -replace ">v$v</span>", ">v$nv</span>"
 $html | Set-Content index.html
 
 Write-Host "[2/3] Sincronizando con Git..." -ForegroundColor White
+
+$finalCommitMessage = "🚀 Auto-deploy v$nv"
+if (-not [string]::IsNullOrWhiteSpace($commitMessage)) {
+    $finalCommitMessage += ": $commitMessage"
+}
 git add .
-git commit -m "🚀 Auto-deploy v$nv"
+git commit -m $finalCommitMessage
 git push origin main
 
 Write-Host "✅ ¡HECHO! Firebase se actualizará en 1 minuto." -ForegroundColor Green

@@ -14,18 +14,6 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const evaluationsRef = db.collection('evaluations');
 
-// 1. Motor de Cálculo (Lógica de Negocio)
-const RiskMotor = {
-    evaluate: (score, threshold) => {
-        const approved = score >= threshold;
-        return {
-            status: approved ? 'APROBADO' : 'RECHAZADO',
-            color: approved ? 'bg-green-100 text-green-800 border-green-300' : 'bg-red-100 text-red-800 border-red-300',
-            icon: approved ? '✅' : '❌'
-        };
-    }
-};
-
 // 2. Navegador SPA (Para cambiar entre "Nueva Evaluación" e "Historial")
 window.router = {
     navigate: (viewName) => {
@@ -97,90 +85,68 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const btnEvaluate = document.getElementById('btn-evaluate');
     btnEvaluate.addEventListener('click', async () => {
-        const rawName = document.getElementById('client-name').value;
-        const creditType = document.getElementById('client-credit-type').value;
-        const maritalStatus = document.getElementById('client-marital-status').value;
-        const income = parseFloat(document.getElementById('client-income').value);
-        const score = parseInt(document.getElementById('client-score').value);
-        const threshold = parseInt(document.getElementById('threshold').value);
+        // 1. Recopilar datos del nuevo formulario
+        const formData = {
+            age: parseInt(document.getElementById('client-age').value),
+            businessAntiquity: parseInt(document.getElementById('business-antiquity').value),
+            asfiRating: document.getElementById('asfi-rating').value,
+            housingType: document.getElementById('housing-type').value,
+            netIncome: parseFloat(document.getElementById('net-income').value),
+            estimatedPayment: parseFloat(document.getElementById('estimated-payment').value)
+        };
 
-        const name = rawName.trim().toUpperCase();
-
-        // Validación básica
-        if (!name) {
-            alert("Por favor, ingresa un nombre válido.");
-            return;
+        // 2. Validación de entradas básicas
+        for (const key in formData) {
+            const value = formData[key];
+            if (!value || (typeof value === 'number' && (isNaN(value) || value <= 0))) {
+                alert(`Por favor, completa el campo '${key}' con un valor válido.`);
+                return;
+            }
         }
 
-        if (!creditType) {
-            alert("Por favor, selecciona un tipo de crédito.");
-            return;
-        }
-
-        if (!maritalStatus) {
-            alert("Por favor, selecciona el estado civil.");
-            return;
-        }
-
-        if (isNaN(income) || income <= 0) {
-            alert("Por favor, ingresa un monto de ingresos válido.");
-            return;
-        }
-
-        if (score < 1 || score > 10 || threshold < 1 || threshold > 10) {
-            alert("Los valores deben estar entre 1 y 10.");
-            return;
-        }
-
-        // Bloquear botón para evitar doble click
-        btnEvaluate.disabled = true;
-        btnEvaluate.innerText = "PROCESANDO...";
-
-        const result = RiskMotor.evaluate(score, threshold);
-
-        // Mostrar resultado en la UI (en lugar de alert)
+        // 3. Ejecutar la validación Poka-Yoke
+        const validationResult = pokaYokeValidation(formData);
         const display = document.getElementById('result-display');
+
+        if (!validationResult.isValid) {
+            // Mostrar alerta de rechazo y detener el flujo
+            alert(`RECHAZO AUTOMÁTICO:\n${validationResult.reason}`);
+            
+            // Opcional: Mostrar visualmente el rechazo en la UI
+            display.innerHTML = `
+                <div class="p-4 rounded-xl border-2 bg-red-100 text-red-800 border-red-300 text-center animate-in fade-in zoom-in duration-300">
+                    <p class="text-sm uppercase tracking-widest font-bold">Rechazo Automático</p>
+                    <h3 class="text-2xl font-black">❌ NO ELEGIBLE</h3>
+                    <p class="text-xs mt-2">${validationResult.reason}</p>
+                </div>
+            `;
+            display.classList.remove('hidden');
+            return;
+        }
+
+        // 4. Si pasa la validación, mostrar mensaje de éxito
+        // Aquí iría la lógica futura de cálculo de puntaje y guardado.
+        // Por ahora, solo mostramos que es elegible.
         display.innerHTML = `
-            <div class="p-4 rounded-xl border-2 ${result.color} text-center animate-in fade-in zoom-in duration-300">
-                <p class="text-sm uppercase tracking-widest font-bold">Resultado</p>
-                <h3 class="text-3xl font-black">${result.icon} ${result.status}</h3>
+            <div class="p-4 rounded-xl border-2 bg-green-100 text-green-800 border-green-300 text-center animate-in fade-in zoom-in duration-300">
+                <p class="text-sm uppercase tracking-widest font-bold">Validación Exitosa</p>
+                <h3 class="text-3xl font-black">✅ ELEGIBLE PARA ANÁLISIS</h3>
+                <p class="text-xs mt-2">El cliente cumple con los requisitos mínimos.</p>
             </div>
         `;
         display.classList.remove('hidden');
 
-        // GUARDAR EN FIRESTORE
-        try {
-            await evaluationsRef.add({
-                name,
-                creditType,
-                maritalStatus,
-                income,
-                score,
-                threshold,
-                resultStatus: result.status,
-                resultColor: result.color,
-                date: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        } catch (error) {
-            console.error("Error al guardar:", error);
-            alert("Error de conexión con la base de datos.");
-        } finally {
-            // Desbloquear botón
-            btnEvaluate.disabled = false;
-            btnEvaluate.innerText = "EJECUTAR EVALUACIÓN";
-        }
+        // NOTA: El guardado en Firestore está desactivado por ahora.
+        // Se puede reactivar aquí cuando se defina el siguiente paso del flujo.
 
-        // Limpiar input nombre
+        // Limpiar formulario después de un momento
         setTimeout(() => {
-            document.getElementById('client-name').value = '';
-            document.getElementById('client-credit-type').value = '';
-            document.getElementById('client-marital-status').value = '';
-            document.getElementById('client-income').value = '';
+            document.querySelectorAll('#view-home input, #view-home select').forEach(el => el.value = '');
         }, 2000);
     });
 
     // Pulido: Limpiar el resultado visual cuando el usuario empiece a escribir un nuevo nombre
-    document.getElementById('client-name').addEventListener('input', () => {
+    document.getElementById('view-home').addEventListener('input', () => {
         const display = document.getElementById('result-display');
         if (!display.classList.contains('hidden')) {
             display.classList.add('hidden');

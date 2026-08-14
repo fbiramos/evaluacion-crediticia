@@ -4,12 +4,20 @@
         {
             "label": "🚀 Desplegar a GitHub",
             "type": "shell",
-            "command": "powershell -ExecutionPolicy Bypass -File ./deploy.ps1",
+            "command": "powershell -ExecutionPolicy Bypass -File ./deploy.ps1 -commitMessage \"${input:commitMessage}\"",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
                 "isDefault": true
             }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "commitMessage",
+            "type": "promptString",
+            "description": "Describe brevemente los cambios para el commit (opcional).",
+            "default": ""
         }
     ]
 }
