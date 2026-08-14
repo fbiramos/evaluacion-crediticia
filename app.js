@@ -14,6 +14,34 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const evaluationsRef = db.collection('evaluations');
 
+// 1. Lógica de Negocio
+
+// Mecanismo Anti-Error (Poka-Yoke) para rechazo automático
+function pokaYokeValidation(data) {
+    const { asfiRating, businessAntiquity, netIncome, estimatedPayment } = data;
+
+    // Regla 1: Calificación ASFI no elegible
+    if (['C', 'D', 'E', 'F'].includes(asfiRating)) {
+        return { isValid: false, reason: `Calificación de riesgo no favorable (${asfiRating}).` };
+    }
+
+    // Regla 2: Antigüedad del negocio insuficiente
+    if (businessAntiquity < 12) {
+        return { isValid: false, reason: `La antigüedad del negocio (${businessAntiquity} meses) es menor al mínimo de 12 meses.` };
+    }
+
+    // Regla 3: Cobertura de cuota por debajo del 100%
+    const coverage = netIncome / estimatedPayment;
+    if (coverage < 1.0) {
+        return {
+            isValid: false,
+            reason: `La cobertura de la cuota es insuficiente (${coverage.toFixed(2)}). El ingreso debe cubrir al menos 1.0 vez la cuota.`
+        };
+    }
+
+    return { isValid: true };
+}
+
 // 2. Navegador SPA (Para cambiar entre "Nueva Evaluación" e "Historial")
 window.router = {
     navigate: (viewName) => {
