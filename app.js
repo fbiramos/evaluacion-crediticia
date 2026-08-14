@@ -89,13 +89,13 @@ function initRealtimeUpdates() {
             const dateStr = ev.date ? ev.date.toDate().toLocaleString('es-BO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Procesando...';
             
             return `
-                <div class="p-4 rounded-xl border ${ev.resultColor} bg-white flex justify-between items-center shadow-sm mb-3">
-                    <div class="flex-1 text-gray-800">
-                        <p class="font-bold text-gray-900">${ev.name}</p>
+                <div class="p-3 rounded-xl border ${ev.resultColor || 'border-gray-300'} bg-white flex justify-between items-center shadow-sm mb-3">
+                    <div class="flex-1 text-gray-800 text-xs">
+                        <p class="font-bold text-sm text-gray-900">Edad: ${ev.age} | Ant: ${ev.businessAntiquity}m | Viv: ${ev.housingType}</p>
                         <p class="text-[10px] opacity-60 uppercase">${dateStr}</p>
-                        <p class="text-xs opacity-80 mt-1">Score: ${ev.score}/${ev.threshold} • ${ev.maritalStatus || 'N/A'} • ${ev.creditType || 'N/A'} • <span class="font-semibold">Bs. ${ev.income || 0}</span></p>
+                        <p class="opacity-80 mt-1">Utilidad: ${ev.netIncome} Bs | Cuota: ${ev.estimatedPayment} Bs | ASFI: <span class="font-bold">${ev.asfiRating}</span></p>
                     </div>
-                    <span class="font-black text-sm mr-4">${ev.resultStatus}</span>
+                    <span class="font-black text-lg mr-4">${ev.resultStatus}</span>
                     <button onclick="deleteEvaluation('${doc.id}')" class="text-gray-500 hover:text-red-400 p-2 transition-colors">🗑️</button>
                 </div>
             `;
