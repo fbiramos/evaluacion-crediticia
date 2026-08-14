@@ -42,6 +42,49 @@ function pokaYokeValidation(data) {
     return { isValid: true };
 }
 
+// Motor de Pre-Scoring (Semáforo)
+function calculatePreScoring(data) {
+    const { asfiRating, businessAntiquity, housingType, netIncome, estimatedPayment } = data;
+    const coverage = netIncome / estimatedPayment;
+
+    // Reglas para VERDE (Cliente Ideal)
+    const isGreen = 
+        asfiRating === 'A' &&
+        businessAntiquity > 24 &&
+        coverage > 1.3 &&
+        ['Propia', 'Familiar'].includes(housingType);
+
+    if (isGreen) {
+        return {
+            status: 'VERDE',
+            color: 'bg-green-100 text-green-800 border-green-400',
+            recommendation: 'Cliente de bajo riesgo. Proceder con oferta preferencial.'
+        };
+    }
+
+    // Reglas para AMARILLO (Cliente con Cautela)
+    const isYellow =
+        asfiRating === 'B' ||
+        (businessAntiquity >= 12 && businessAntiquity <= 24) ||
+        (coverage >= 1.0 && coverage <= 1.2) ||
+        ['Alquilada', 'Anticrético'].includes(housingType);
+
+    if (isYellow) {
+        return {
+            status: 'AMARILLO',
+            color: 'bg-yellow-100 text-yellow-800 border-yellow-400',
+            recommendation: 'Riesgo moderado. Requiere análisis documental adicional.'
+        };
+    }
+
+    // Si no es Verde ni Amarillo, se considera ROJO por defecto (aunque haya pasado el Poka-Yoke)
+    return {
+        status: 'ROJO',
+        color: 'bg-red-100 text-red-800 border-red-400',
+        recommendation: 'Riesgo elevado. No cumple políticas de riesgo para continuar.'
+    };
+}
+
 // 2. Navegador SPA (Para cambiar entre "Nueva Evaluación" e "Historial")
 window.router = {
     navigate: (viewName) => {
@@ -152,28 +195,52 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 4. Si pasa la validación, mostrar mensaje de éxito
-        // Aquí iría la lógica futura de cálculo de puntaje y guardado.
-        // Por ahora, solo mostramos que es elegible.
+        // 4. Ejecutar el motor de Pre-Scoring (Semáforo)
+        const scoringResult = calculatePreScoring(formData);
+
+        // 5. Mostrar el resultado final en la UI
         display.innerHTML = `
-            <div class="p-4 rounded-xl border-2 bg-green-100 text-green-800 border-green-300 text-center animate-in fade-in zoom-in duration-300">
-                <p class="text-sm uppercase tracking-widest font-bold">Validación Exitosa</p>
-                <h3 class="text-3xl font-black">✅ ELEGIBLE PARA ANÁLISIS</h3>
-                <p class="text-xs mt-2">El cliente cumple con los requisitos mínimos.</p>
+            <div class="p-4 rounded-xl border-2 ${scoringResult.color} text-center animate-in fade-in zoom-in duration-300">
+                <p class="text-sm uppercase tracking-widest font-bold">Resultado Pre-Scoring</p>
+                <h3 class="text-4xl font-black my-2">${scoringResult.status}</h3>
+                <p class="text-xs mt-2 font-medium">${scoringResult.recommendation}</p>
+                <button id="btn-save" class="w-full btn-primary-custom font-bold py-3 rounded-lg shadow-lg transition-all active:scale-95 mt-4">
+                    GUARDAR EVALUACIÓN
+                </button>
             </div>
         `;
         display.classList.remove('hidden');
 
-        // NOTA: El guardado en Firestore está desactivado por ahora.
-        // Se puede reactivar aquí cuando se defina el siguiente paso del flujo.
+        // 6. Añadir evento al nuevo botón de guardar
+        document.getElementById('btn-save').addEventListener('click', async () => {
+            const saveButton = document.getElementById('btn-save');
+            saveButton.disabled = true;
+            saveButton.innerText = 'GUARDANDO...';
 
-        // Limpiar formulario después de un momento
-        setTimeout(() => {
-            document.querySelectorAll('#view-home input, #view-home select').forEach(el => el.value = '');
-        }, 2000);
+            try {
+                // El método .add() genera un ID único automáticamente
+                await evaluationsRef.add({
+                    ...formData, // Guarda todos los datos del formulario
+                    resultStatus: scoringResult.status,
+                    resultColor: scoringResult.color,
+                    recommendation: scoringResult.recommendation,
+                    date: firebase.firestore.FieldValue.serverTimestamp() // Fecha/hora del servidor
+                });
+                
+                // Limpiar formulario y ocultar resultado para la siguiente evaluación
+                document.querySelectorAll('#view-home input, #view-home select').forEach(el => el.value = '');
+                display.classList.add('hidden');
+
+            } catch (error) {
+                console.error("Error al guardar en Firestore:", error);
+                alert("Error de conexión al guardar en la base de datos. Inténtalo de nuevo.");
+                saveButton.disabled = false;
+                saveButton.innerText = 'GUARDAR EVALUACIÓN';
+            }
+        });
     });
 
-    // Pulido: Limpiar el resultado visual cuando el usuario empiece a escribir un nuevo nombre
+    // Pulido: Limpiar el resultado visual si el usuario modifica algún dato
     document.getElementById('view-home').addEventListener('input', () => {
         const display = document.getElementById('result-display');
         if (!display.classList.contains('hidden')) {
