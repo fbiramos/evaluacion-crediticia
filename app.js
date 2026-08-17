@@ -176,9 +176,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. Validación de entradas básicas
         for (const key in formData) {
             const value = formData[key];
-            if (!value || (typeof value === 'number' && (isNaN(value) || value <= 0))) {
-                alert(`Por favor, completa el campo '${key}' con un valor válido.`);
-                return;
+            // La validación solo aplica a campos numéricos.
+            // Se permite que los costos/gastos sean 0, pero no negativos.
+            if (typeof value === 'number') {
+                // `estimatedPayment` y `totalIncome` deben ser mayores a 0.
+                if (isNaN(value) || value < 0 || (['estimatedPayment', 'totalIncome'].includes(key) && value === 0)) {
+                    alert(`Por favor, completa el campo '${key}' con un valor numérico válido y positivo.`);
+                    return;
+                }
             }
         }
 
