@@ -132,10 +132,10 @@ function initRealtimeUpdates() {
             const dateStr = ev.date ? ev.date.toDate().toLocaleString('es-BO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Procesando...';
             
             return `
-                <div class="p-3 rounded-xl border ${ev.resultColor || 'border-gray-300'} bg-white flex justify-between items-center shadow-sm mb-3">
-                    <div class="flex-1 text-gray-800 text-xs">
-                        <p class="font-bold text-sm text-gray-900">Edad: ${ev.age} | Ant: ${ev.businessAntiquity}m | Viv: ${ev.housingType}</p>
-                        <p class="text-[10px] opacity-60 uppercase">${dateStr}</p>
+                <div class="custom-card p-3 rounded-xl border ${ev.resultColor || 'border-gray-300'} flex justify-between items-center shadow-sm mb-3">
+                    <div class="flex-1 text-xs">
+                        <p class="font-bold text-sm">Edad: ${ev.age} | Ant: ${ev.businessAntiquity}m | Viv: ${ev.housingType}</p>
+                        <p class="text-[10px] text-muted uppercase">${dateStr}</p>
                         <p class="opacity-80 mt-1">Utilidad: ${ev.netIncome} Bs | Cuota: ${ev.estimatedPayment} Bs | ASFI: <span class="font-bold">${ev.asfiRating}</span></p>
                     </div>
                     <span class="font-black text-lg mr-4">${ev.resultStatus}</span>
