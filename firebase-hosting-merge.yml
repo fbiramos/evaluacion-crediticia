@@ -17,7 +17,7 @@ jobs:
           echo "Desplegando versión: $VERSION"
 
           # Inyectar versión en los archivos para forzar la actualización en los clientes
-          sed -i "s/CACHE_NAME = 'v[0-9]\+'/CACHE_NAME = '$VERSION'/g" sw.js
+          sed -i "s/const CACHE_NAME = 'v[0-9]\+'/const CACHE_NAME = '$VERSION'/g" sw.js
           sed -i "s/?v=[0-9]\{1,\}/?v=$VER_NUM/g" index.html
           sed -i "s/id=\"app-version\">v[0-9]\{1,\}/id=\"app-version\">$VERSION/g" index.html
       - uses: FirebaseExtended/action-hosting-deploy@v0

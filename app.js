@@ -38,6 +38,7 @@ function runCreditEngine(data) {
         return {
             status: 'ROJO',
             color: 'bg-red-100 text-red-800 border-red-400',
+            chartColor: '#f87171', // red-400
             recommendation: 'Declaración verbal de mora o proceso judicial vigente.',
             paymentCapacityPct: paymentCapacityPct,
             netIncome: netIncome
@@ -47,6 +48,7 @@ function runCreditEngine(data) {
         return {
             status: 'ROJO',
             color: 'bg-red-100 text-red-800 border-red-400',
+            chartColor: '#f87171', // red-400
             recommendation: `Edad (${age} años) fuera del rango de política crediticia (18-68).`,
             paymentCapacityPct: paymentCapacityPct,
             netIncome: netIncome
@@ -58,6 +60,7 @@ function runCreditEngine(data) {
         return {
             status: 'ROJO',
             color: 'bg-red-100 text-red-800 border-red-400',
+            chartColor: '#f87171', // red-400
             recommendation: 'Capacidad de pago insuficiente para cubrir la cuota proyectada.',
             paymentCapacityPct: paymentCapacityPct,
             netIncome: netIncome,
@@ -72,6 +75,7 @@ function runCreditEngine(data) {
         return {
             status: 'AMARILLO',
             color: 'bg-yellow-100 text-yellow-800 border-yellow-400',
+            chartColor: '#facc15', // yellow-400
             recommendation: 'Capacidad de pago ajustada. Se sugiere evaluar ampliación de plazo, ajuste de monto o requerimiento de garante.',
             paymentCapacityPct: paymentCapacityPct,
             netIncome: netIncome,
@@ -84,6 +88,7 @@ function runCreditEngine(data) {
     return {
         status: 'VERDE',
         color: 'bg-green-100 text-green-800 border-green-400',
+        chartColor: '#4ade80', // green-400
         recommendation: 'Evaluación preliminar favorable. Capacidad de pago holgada. Continuar con la recopilación de carpetas y visita de campo.',
         paymentCapacityPct: paymentCapacityPct,
         netIncome: netIncome
@@ -194,13 +199,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const display = document.getElementById('result-display');
         display.innerHTML = `
             <div class="p-4 rounded-xl border-2 ${scoringResult.color} text-center animate-in fade-in zoom-in duration-300">
-                <p class="text-sm uppercase tracking-widest font-bold">Dictamen Preliminar</p>
-                <h3 class="text-4xl font-black my-2">${scoringResult.status}</h3>
-                <div class="my-3 p-2 rounded-lg bg-black bg-opacity-5">
-                    <p class="text-xs uppercase">Capacidad de Pago</p>
-                    <p class="font-bold text-xl">${scoringResult.paymentCapacityPct.toFixed(1)}%</p>
+                <p class="text-sm uppercase tracking-widest font-bold mb-2">Dictamen Preliminar</p>
+                <div class="flex items-center justify-center space-x-4">
+                    <div class="relative">
+                        ${createDonutChart(scoringResult.paymentCapacityPct, scoringResult.chartColor)}
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="font-black text-2xl">${scoringResult.paymentCapacityPct.toFixed(0)}%</span>
+                            <span class="text-xs uppercase -mt-1">de CP</span>
+                        </div>
+                    </div>
+                    <h3 class="text-5xl font-black">${scoringResult.status}</h3>
                 </div>
-                <p class="text-xs mt-2 font-medium">${scoringResult.recommendation}</p>
+                <p class="text-xs mt-4 font-medium">${scoringResult.recommendation}</p>
                 
                 ${scoringResult.maxSuggestedPayment ? `
                 <div class="mt-4 pt-3 border-t border-black border-opacity-10">
