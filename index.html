@@ -26,52 +26,72 @@
         <!-- VISTA: Formulario -->
         <section id="view-home" class="view">
             <div class="max-w-md mx-auto custom-card p-6 rounded-2xl shadow-xl">
-                <h2 class="text-2xl font-semibold mb-6 text-center">Primer Contacto Crediticio</h2>
+                <h2 class="text-2xl font-semibold mb-6 text-center">Evaluación Preliminar</h2>
                 <div class="space-y-4">
+                    <!-- Datos Demográficos y de Actividad -->
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Edad</label>
                             <input type="number" id="client-age" placeholder="Ej: 35" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Antigüedad Negocio (Meses)</label>
-                            <input type="number" id="business-antiquity" placeholder="Ej: 24" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                            <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Estado Civil</label>
+                            <select id="marital-status" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <option value="Soltero(a)">Soltero(a)</option>
+                                <option value="Casado(a)">Casado(a)</option>
+                                <option value="Conviviente">Conviviente</option>
+                                <option value="Divorciado(a)">Divorciado(a)</option>
+                                <option value="Viudo(a)">Viudo(a)</option>
+                            </select>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Calificación ASFI/Buró</label>
-                        <select id="asfi-rating" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
-                            <option value="">Seleccione calificación...</option>
-                            <option value="A">A - Excelente</option>
-                            <option value="B">B - Bueno</option>
-                            <option value="C">C - Aceptable</option>
-                            <option value="D">D - Riesgo Potencial</option>
-                            <option value="E">E - Riesgo Alto</option>
-                            <option value="F">F - Incobrable</option>
-                        </select>
+                        <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Antigüedad Negocio (Años)</label>
+                        <input type="number" id="business-antiquity" placeholder="Ej: 5" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
-                    <div>
-                        <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Tipo de Vivienda</label>
-                        <select id="housing-type" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
-                            <option value="">Seleccione tipo...</option>
-                            <option value="Propia">Propia</option>
-                            <option value="Alquilada">Alquilada</option>
-                            <option value="Anticrético">Anticrético</option>
-                            <option value="Familiar">Familiar</option>
-                        </select>
+
+                    <!-- Datos Financieros -->
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Ingresos Totales (Bs)</label>
+                                <input type="number" id="total-income" placeholder="Ej: 8000" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Costos Operativos (Bs)</label>
+                                <input type="number" id="operating-costs" placeholder="Ej: 3000" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                        </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Utilidad Neta (Bs)</label>
-                            <input type="number" id="net-income" placeholder="Ej: 5000" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                            <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Gastos Familiares (Bs)</label>
+                            <input type="number" id="family-expenses" placeholder="Ej: 2000" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                         <div>
                             <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Cuota Estimada (Bs)</label>
                             <input type="number" id="estimated-payment" placeholder="Ej: 2500" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                     </div>
+
+                    <!-- Filtro Cualitativo -->
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" id="judicial-default-declaration" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="text-sm">¿Cliente declara verbalmente tener mora o procesos judiciales?</span>
+                        </label>
+                    </div>
+
+                    <div>
+                        <!-- Campos opcionales para el futuro, no usados en la lógica actual pero útiles -->
+                        <input type="hidden" id="activity-type" value="Comercio">
+                        <input type="hidden" id="inventory-assets" value="0">
+                        <input type="hidden" id="requested-amount" value="0">
+                        <input type="hidden" id="term-months" value="0">
+                    </div>
+
                     <button id="btn-evaluate" class="w-full btn-primary-custom font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95 mt-4">
-                        VALIDAR ELEGIBILIDAD
+                        EVALUAR
                     </button>
                 </div>
 

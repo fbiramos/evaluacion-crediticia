@@ -16,72 +16,77 @@ const evaluationsRef = db.collection('evaluations');
 
 // 1. Lógica de Negocio
 
-// Mecanismo Anti-Error (Poka-Yoke) para rechazo automático
-function pokaYokeValidation(data) {
-    const { asfiRating, businessAntiquity, netIncome, estimatedPayment } = data;
+/**
+ * Motor de Evaluación Preliminar de Primer Contacto (Semáforo)
+ * @param {object} data - Objeto con los datos del formulario.
+ * @returns {object} - Objeto con el dictamen (status, color, recommendation, etc.).
+ */
+function runCreditEngine(data) {
+    const { age, judicialDefaultDeclaration, totalIncome, operatingCosts, familyExpenses, estimatedPayment } = data;
 
-    // Regla 1: Calificación ASFI no elegible
-    if (['C', 'D', 'E', 'F'].includes(asfiRating)) {
-        return { isValid: false, reason: `Calificación de riesgo no favorable (${asfiRating}).` };
-    }
+    // 1. Cálculo de Ingreso Neto Disponible
+    const netIncome = totalIncome - operatingCosts - familyExpenses;
 
-    // Regla 2: Antigüedad del negocio insuficiente
-    if (businessAntiquity < 12) {
-        return { isValid: false, reason: `La antigüedad del negocio (${businessAntiquity} meses) es menor al mínimo de 12 meses.` };
-    }
+    // 2. Cálculo del Porcentaje de Capacidad de Pago (CP)
+    // Evitar división por cero si la cuota es 0 o no se ha ingresado
+    const paymentCapacityPct = (estimatedPayment > 0) ? (netIncome / estimatedPayment) * 100 : 0;
 
-    // Regla 3: Cobertura de cuota por debajo del 100%
-    const coverage = netIncome / estimatedPayment;
-    if (coverage < 1.0) {
+    // --- 3. Evaluación de Reglas de Negocio y Semáforo ---
+
+    // Filtros Excluyentes Inmediatos (Dictamen ROJO)
+    if (judicialDefaultDeclaration) {
         return {
-            isValid: false,
-            reason: `La cobertura de la cuota es insuficiente (${coverage.toFixed(2)}). El ingreso debe cubrir al menos 1.0 vez la cuota.`
+            status: 'ROJO',
+            color: 'bg-red-100 text-red-800 border-red-400',
+            recommendation: 'Declaración verbal de mora o proceso judicial vigente.',
+            paymentCapacityPct: paymentCapacityPct,
+            netIncome: netIncome
+        };
+    }
+    if (age < 18 || age > 68) {
+        return {
+            status: 'ROJO',
+            color: 'bg-red-100 text-red-800 border-red-400',
+            recommendation: `Edad (${age} años) fuera del rango de política crediticia (18-68).`,
+            paymentCapacityPct: paymentCapacityPct,
+            netIncome: netIncome
+        };
+    }
+    if (paymentCapacityPct < 100) {
+        // 4. Recálculo Sugerido: Cuota máxima para alcanzar 100% de CP
+        const maxSuggestedPayment = netIncome;
+        return {
+            status: 'ROJO',
+            color: 'bg-red-100 text-red-800 border-red-400',
+            recommendation: 'Capacidad de pago insuficiente para cubrir la cuota proyectada.',
+            paymentCapacityPct: paymentCapacityPct,
+            netIncome: netIncome,
+            maxSuggestedPayment: maxSuggestedPayment
         };
     }
 
-    return { isValid: true };
-}
-
-// Motor de Pre-Scoring (Semáforo)
-function calculatePreScoring(data) {
-    const { asfiRating, businessAntiquity, housingType, netIncome, estimatedPayment } = data;
-    const coverage = netIncome / estimatedPayment;
-
-    // Reglas para VERDE (Cliente Ideal)
-    const isGreen = 
-        asfiRating === 'A' &&
-        businessAntiquity > 24 &&
-        coverage > 1.3 &&
-        ['Propia', 'Familiar'].includes(housingType);
-
-    if (isGreen) {
-        return {
-            status: 'VERDE',
-            color: 'bg-green-100 text-green-800 border-green-400',
-            recommendation: 'Cliente de bajo riesgo. Proceder con oferta preferencial.'
-        };
-    }
-
-    // Reglas para AMARILLO (Cliente con Cautela)
-    const isYellow =
-        asfiRating === 'B' ||
-        (businessAntiquity >= 12 && businessAntiquity <= 24) ||
-        (coverage >= 1.0 && coverage <= 1.2) ||
-        ['Alquilada', 'Anticrético'].includes(housingType);
-
-    if (isYellow) {
+    // Evaluación de Viabilidad Condicionada (Dictamen AMARILLO)
+    if (paymentCapacityPct >= 100 && paymentCapacityPct < 120) {
+        // 4. Recálculo Sugerido: Cuota máxima para alcanzar 120% de CP
+        const maxSuggestedPayment = netIncome / 1.2;
         return {
             status: 'AMARILLO',
             color: 'bg-yellow-100 text-yellow-800 border-yellow-400',
-            recommendation: 'Riesgo moderado. Requiere análisis documental adicional.'
+            recommendation: 'Capacidad de pago ajustada. Se sugiere evaluar ampliación de plazo, ajuste de monto o requerimiento de garante.',
+            paymentCapacityPct: paymentCapacityPct,
+            netIncome: netIncome,
+            maxSuggestedPayment: maxSuggestedPayment
         };
     }
 
-    // Si no es Verde ni Amarillo, se considera ROJO por defecto (aunque haya pasado el Poka-Yoke)
+    // Evaluación de Alta Viabilidad (Dictamen VERDE)
+    // Esta es la condición por defecto si no se cumplen las anteriores (CP >= 120)
     return {
-        status: 'ROJO',
-        color: 'bg-red-100 text-red-800 border-red-400',
-        recommendation: 'Riesgo elevado. No cumple políticas de riesgo para continuar.'
+        status: 'VERDE',
+        color: 'bg-green-100 text-green-800 border-green-400',
+        recommendation: 'Evaluación preliminar favorable. Capacidad de pago holgada. Continuar con la recopilación de carpetas y visita de campo.',
+        paymentCapacityPct: paymentCapacityPct,
+        netIncome: netIncome
     };
 }
 
@@ -133,10 +138,10 @@ function initRealtimeUpdates() {
             
             return `
                 <div class="custom-card p-3 rounded-xl border ${ev.resultColor || 'border-gray-300'} flex justify-between items-center shadow-sm mb-3">
-                    <div class="flex-1 text-xs">
-                        <p class="font-bold text-sm">Edad: ${ev.age} | Ant: ${ev.businessAntiquity}m | Viv: ${ev.housingType}</p>
+                    <div class="flex-1 text-xs overflow-hidden">
+                        <p class="font-bold text-sm truncate">Edad: ${ev.age} | Ant: ${ev.businessAntiquity}a | Ing. Neto: ${ev.netIncome.toFixed(0)} Bs</p>
                         <p class="text-[10px] text-muted uppercase">${dateStr}</p>
-                        <p class="opacity-80 mt-1">Utilidad: ${ev.netIncome} Bs | Cuota: ${ev.estimatedPayment} Bs | ASFI: <span class="font-bold">${ev.asfiRating}</span></p>
+                        <p class="opacity-80 mt-1 truncate">Cuota: ${ev.estimatedPayment} Bs | CP: <span class="font-bold">${ev.paymentCapacityPct.toFixed(0)}%</span></p>
                     </div>
                     <span class="font-black text-lg mr-4">${ev.resultStatus}</span>
                     <button onclick="deleteEvaluation('${doc.id}')" class="text-gray-500 hover:text-red-400 p-2 transition-colors">🗑️</button>
@@ -159,11 +164,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Recopilar datos del nuevo formulario
         const formData = {
             age: parseInt(document.getElementById('client-age').value),
+            maritalStatus: document.getElementById('marital-status').value,
             businessAntiquity: parseInt(document.getElementById('business-antiquity').value),
-            asfiRating: document.getElementById('asfi-rating').value,
-            housingType: document.getElementById('housing-type').value,
-            netIncome: parseFloat(document.getElementById('net-income').value),
-            estimatedPayment: parseFloat(document.getElementById('estimated-payment').value)
+            judicialDefaultDeclaration: document.getElementById('judicial-default-declaration').checked,
+            totalIncome: parseFloat(document.getElementById('total-income').value),
+            operatingCosts: parseFloat(document.getElementById('operating-costs').value),
+            familyExpenses: parseFloat(document.getElementById('family-expenses').value),
+            estimatedPayment: parseFloat(document.getElementById('estimated-payment').value),
         };
 
         // 2. Validación de entradas básicas
@@ -175,35 +182,27 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // 3. Ejecutar la validación Poka-Yoke
-        const validationResult = pokaYokeValidation(formData);
+        // 3. Ejecutar el nuevo motor de evaluación crediticia
+        const scoringResult = runCreditEngine(formData);
+
+        // 4. Mostrar el resultado final en la UI
         const display = document.getElementById('result-display');
-
-        if (!validationResult.isValid) {
-            // Mostrar alerta de rechazo y detener el flujo
-            alert(`RECHAZO AUTOMÁTICO:\n${validationResult.reason}`);
-            
-            // Opcional: Mostrar visualmente el rechazo en la UI
-            display.innerHTML = `
-                <div class="p-4 rounded-xl border-2 bg-red-100 text-red-800 border-red-300 text-center animate-in fade-in zoom-in duration-300">
-                    <p class="text-sm uppercase tracking-widest font-bold">Rechazo Automático</p>
-                    <h3 class="text-2xl font-black">❌ NO ELEGIBLE</h3>
-                    <p class="text-xs mt-2">${validationResult.reason}</p>
-                </div>
-            `;
-            display.classList.remove('hidden');
-            return;
-        }
-
-        // 4. Ejecutar el motor de Pre-Scoring (Semáforo)
-        const scoringResult = calculatePreScoring(formData);
-
-        // 5. Mostrar el resultado final en la UI
         display.innerHTML = `
             <div class="p-4 rounded-xl border-2 ${scoringResult.color} text-center animate-in fade-in zoom-in duration-300">
-                <p class="text-sm uppercase tracking-widest font-bold">Resultado Pre-Scoring</p>
+                <p class="text-sm uppercase tracking-widest font-bold">Dictamen Preliminar</p>
                 <h3 class="text-4xl font-black my-2">${scoringResult.status}</h3>
+                <div class="my-3 p-2 rounded-lg bg-black bg-opacity-5">
+                    <p class="text-xs uppercase">Capacidad de Pago</p>
+                    <p class="font-bold text-xl">${scoringResult.paymentCapacityPct.toFixed(1)}%</p>
+                </div>
                 <p class="text-xs mt-2 font-medium">${scoringResult.recommendation}</p>
+                
+                ${scoringResult.maxSuggestedPayment ? `
+                <div class="mt-4 pt-3 border-t border-black border-opacity-10">
+                    <p class="text-xs">Se sugiere una cuota máxima de <b class="text-base">Bs. ${scoringResult.maxSuggestedPayment.toFixed(2)}</b> para mejorar la viabilidad.</p>
+                </div>
+                ` : ''}
+
                 <button id="btn-save" class="w-full btn-primary-custom font-bold py-3 rounded-lg shadow-lg transition-all active:scale-95 mt-4">
                     GUARDAR EVALUACIÓN
                 </button>
@@ -211,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         display.classList.remove('hidden');
 
-        // 6. Añadir evento al nuevo botón de guardar
+        // 5. Añadir evento al nuevo botón de guardar
         document.getElementById('btn-save').addEventListener('click', async () => {
             const saveButton = document.getElementById('btn-save');
             saveButton.disabled = true;
@@ -224,6 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     resultStatus: scoringResult.status,
                     resultColor: scoringResult.color,
                     recommendation: scoringResult.recommendation,
+                    paymentCapacityPct: scoringResult.paymentCapacityPct,
+                    netIncome: scoringResult.netIncome,
                     date: firebase.firestore.FieldValue.serverTimestamp() // Fecha/hora del servidor
                 });
                 
