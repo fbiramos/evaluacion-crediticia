@@ -26,7 +26,7 @@
         <!-- VISTA: Formulario -->
         <section id="view-home" class="view">
             <div class="max-w-md mx-auto custom-card p-6 rounded-2xl shadow-xl">
-                <h2 class="text-2xl font-semibold mb-6 text-center">Evaluación Preliminar</h2>
+                <h2 class="text-2xl font-semibold mb-6 text-center uppercase">EVALUACIÓN PRELIMINAR</h2>
                 <div class="space-y-4">
                     <!-- Datos Demográficos y de Actividad -->
                     <div class="grid grid-cols-2 gap-4">
@@ -115,6 +115,7 @@
                         <p class="text-[10px] text-muted uppercase font-bold mb-2 tracking-widest">Información de App</p>
                         <p class="text-sm">Versión: <span id="app-version">v8</span></p>
                         <p class="text-sm">Estado: <span class="text-green-500 font-bold">Online</span></p>
+                        <button id="btn-sign-out" class="w-full mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors" title="Sign Out">Sign Out</button>
                         <p class="text-xs text-muted mt-4 text-center">© 2024 CreditEval Professional System</p>
                     </div>
                 </div>
@@ -133,6 +134,7 @@
     <!-- Firebase Core y Firestore (Versión Compat) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
     <!-- Cargamos la lógica al final -->
     <script src="app.js?v=8"></script>

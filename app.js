@@ -127,6 +127,36 @@ window.themeManager = {
     }
 };
 
+window.signOut = async () => {
+    const signOutButton = document.getElementById('btn-sign-out');
+    if (signOutButton) {
+        signOutButton.disabled = true;
+        signOutButton.textContent = 'Signing out...';
+    }
+
+    try {
+        if (typeof firebase !== 'undefined' && firebase.apps.length && firebase.auth) {
+            const auth = firebase.auth();
+            if (auth && auth.currentUser) {
+                await auth.signOut();
+            }
+        }
+
+        localStorage.removeItem('cloudCodeSession');
+        localStorage.removeItem('creditEvalSession');
+        alert('Sign out successful.');
+        window.router.navigate('home');
+    } catch (error) {
+        console.error('Error al cerrar sesión:', error);
+        alert('No se pudo cerrar la sesión. Inténtalo de nuevo.');
+    } finally {
+        if (signOutButton) {
+            signOutButton.disabled = false;
+            signOutButton.textContent = 'Sign Out';
+        }
+    }
+};
+
 // 3. Escucha en tiempo real de Firestore
 function initRealtimeUpdates() {
     evaluationsRef.orderBy('date', 'desc').limit(20).onSnapshot(snapshot => {
@@ -163,6 +193,11 @@ function initRealtimeUpdates() {
 document.addEventListener('DOMContentLoaded', () => {
     themeManager.init();
     initRealtimeUpdates();
+
+    const signOutButton = document.getElementById('btn-sign-out');
+    if (signOutButton) {
+        signOutButton.addEventListener('click', window.signOut);
+    }
     
     const btnEvaluate = document.getElementById('btn-evaluate');
     btnEvaluate.addEventListener('click', async () => {
