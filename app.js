@@ -234,7 +234,7 @@ window.signOut = async () => {
 
 // 3. Escucha en tiempo real de Firestore
 function initRealtimeUpdates() {
-    evaluationsRef.orderBy('date', 'desc').limit(20).onSnapshot(snapshot => {
+    evaluationsRef.orderBy('date', 'desc').onSnapshot(snapshot => {
         const list = document.getElementById('history-list');
         if (snapshot.empty) {
             list.innerHTML = `<p class="text-gray-500 text-center italic">No hay registros aún...</p>`;
@@ -243,18 +243,26 @@ function initRealtimeUpdates() {
 
         list.innerHTML = snapshot.docs.map(doc => {
             const ev = doc.data();
-            // Formatear la fecha de Firestore a algo legible
             const dateStr = ev.date ? ev.date.toDate().toLocaleString('es-BO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Procesando...';
-            
+            const fullName = ev.fullName || 'Sin nombre';
+            const identityCard = ev.identityCard || 'Sin CI';
+            const status = ev.resultStatus || 'SIN ESTADO';
+            const score = ev.totalScore ?? ev.globalIndex ?? 0;
+
             return `
-                <div class="custom-card p-3 rounded-xl border ${ev.resultColor || 'border-gray-300'} flex justify-between items-center shadow-sm mb-3">
-                    <div class="flex-1 text-xs overflow-hidden">
-                        <p class="font-bold text-sm truncate">Edad: ${ev.age} | Ant: ${ev.businessAntiquity}a | Ing. Neto: ${ev.netIncome.toFixed(0)} Bs</p>
-                        <p class="text-[10px] text-muted uppercase">${dateStr}</p>
-                        <p class="opacity-80 mt-1 truncate">Cuota: ${ev.estimatedPayment} Bs | CP: <span class="font-bold">${ev.paymentCapacityPct.toFixed(0)}%</span></p>
+                <div class="custom-card p-3 rounded-xl border ${ev.resultColor || 'border-gray-300'} shadow-sm mb-3">
+                    <div class="flex justify-between items-start gap-3">
+                        <div class="flex-1 text-xs overflow-hidden">
+                            <p class="font-bold text-sm truncate">${fullName}</p>
+                            <p class="text-[10px] text-muted uppercase">CI: ${identityCard}</p>
+                            <p class="text-[10px] text-muted uppercase mt-1">${dateStr}</p>
+                            <p class="opacity-80 mt-1 truncate">Edad: ${ev.age || 'N/A'} | Estado: ${ev.maritalStatus || 'N/A'} | Puntaje: <span class="font-bold">${score}</span></p>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-black text-lg block">${status}</span>
+                            <button onclick="deleteEvaluation('${doc.id}')" class="text-gray-500 hover:text-red-400 p-2 transition-colors mt-1">🗑️</button>
+                        </div>
                     </div>
-                    <span class="font-black text-lg mr-4">${ev.resultStatus}</span>
-                    <button onclick="deleteEvaluation('${doc.id}')" class="text-gray-500 hover:text-red-400 p-2 transition-colors">🗑️</button>
                 </div>
             `;
         }).join('');
@@ -276,7 +284,17 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const btnEvaluate = document.getElementById('btn-evaluate');
     btnEvaluate.addEventListener('click', async () => {
+        const fullName = document.getElementById('full-name').value.trim();
+        const identityCard = document.getElementById('identity-card').value.trim();
+
+        if (!fullName || !identityCard) {
+            alert('Ingresa el nombre completo y el carnet de identidad antes de continuar.');
+            return;
+        }
+
         const formData = {
+            fullName,
+            identityCard,
             age: Number(document.getElementById('client-age').value),
             maritalStatus: document.getElementById('marital-status').value,
             housingType: document.getElementById('housing-type').value,
@@ -295,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            if (key !== 'age' && (!value || value.trim() === '')) {
+            if (key !== 'age' && key !== 'fullName' && key !== 'identityCard' && (!value || value.trim() === '')) {
                 alert('Completa todas las variables del modelo de preevaluación antes de evaluar.');
                 return;
             }
