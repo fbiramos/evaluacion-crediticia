@@ -21,77 +21,151 @@ const evaluationsRef = db.collection('evaluations');
  * @param {object} data - Objeto con los datos del formulario.
  * @returns {object} - Objeto con el dictamen (status, color, recommendation, etc.).
  */
+function getAgeScore(age) {
+    if (age < 18 || age > 68) return 1;
+    if (age >= 18 && age <= 25) return 7;
+    if (age >= 26 && age <= 35) return 10;
+    if (age >= 36 && age <= 45) return 9;
+    if (age >= 46 && age <= 55) return 8;
+    return 7;
+}
+
+function getScoreValue(category, value) {
+    const scoreMap = {
+        'marital-status': {
+            'Casado': 10,
+            'Conviviente': 10,
+            'Soltero': 7,
+            'Divorciado': 7,
+            'Viudo': 7
+        },
+        'housing-type': {
+            'Propietario': 10,
+            'Vivienda familiar': 7,
+            'Alquilado': 5
+        },
+        'dependents': {
+            '0-2 dependientes': 10,
+            '3-4 dependientes': 7,
+            '5+ dependientes': 4
+        },
+        'patrimony': {
+            'Inmueble/Vehículo propio': 10,
+            'Vehículo propio': 7,
+            'Sin bienes registrados': 4
+        },
+        'guarantor': {
+            'Garante con ingresos estables': 10,
+            'Garante con ingresos variables': 7,
+            'Sin garante': 4
+        },
+        'credit-history': {
+            'Impecable / Sin mora': 10,
+            'Mora ocasional < 30 días': 5,
+            'Mora severa': 1
+        },
+        'active-credits': {
+            'Sin créditos activos o 1 al día': 10,
+            '2 créditos al día': 7,
+            'Créditos en mora': 1
+        },
+        'indirect-debt': {
+            'No es garante activo': 10,
+            'Garante de crédito al día': 7,
+            'Garante de crédito en mora': 1
+        },
+        'business-antiquity': {
+            'Más de 3 años continuos': 10,
+            'Aproximadamente 3 años': 7,
+            '1-3 años': 5,
+            'Menos de 1 año': 2
+        }
+    };
+
+    if (category === 'age') {
+        return getAgeScore(Number(value));
+    }
+
+    return scoreMap[category]?.[value] ?? 0;
+}
+
+function createDonutChart(value, color) {
+    const safeValue = Math.min(Math.max(value, 0), 10);
+    const pct = (safeValue / 10) * 100;
+    const radius = 40;
+    const circumference = 2 * Math.PI * radius;
+    const dash = (pct / 100) * circumference;
+
+    return `
+    <svg width="120" height="120" viewBox="0 0 120 120" class="block">
+        <circle cx="60" cy="60" r="40" fill="none" stroke="rgba(148, 163, 184, 0.25)" stroke-width="10"></circle>
+        <circle cx="60" cy="60" r="40" fill="none" stroke="${color}" stroke-width="10" stroke-linecap="round" transform="rotate(-90 60 60)" stroke-dasharray="${dash} ${circumference}" style="transition: stroke-dasharray 0.3s ease"></circle>
+    </svg>
+    `;
+}
+
 function runCreditEngine(data) {
-    const { age, judicialDefaultDeclaration, totalIncome, operatingCosts, familyExpenses, estimatedPayment } = data;
+    const scoreFields = {
+        age: data.age,
+        'marital-status': data.maritalStatus,
+        'housing-type': data.housingType,
+        'dependents': data.dependents,
+        'patrimony': data.patrimony,
+        'guarantor': data.guarantor,
+        'credit-history': data.creditHistory,
+        'active-credits': data.activeCredits,
+        'indirect-debt': data.indirectDebt,
+        'business-antiquity': data.businessAntiquity
+    };
 
-    // 1. Cálculo de Ingreso Neto Disponible
-    const netIncome = totalIncome - operatingCosts - familyExpenses;
+    const breakdown = {};
+    let totalScore = 0;
 
-    // 2. Cálculo del Porcentaje de Capacidad de Pago (CP)
-    // Evitar división por cero si la cuota es 0 o no se ha ingresado
-    const paymentCapacityPct = (estimatedPayment > 0) ? (netIncome / estimatedPayment) * 100 : 0;
+    Object.entries(scoreFields).forEach(([key, value]) => {
+        const point = getScoreValue(key, value);
+        breakdown[key] = point;
+        totalScore += point;
+    });
 
-    // --- 3. Evaluación de Reglas de Negocio y Semáforo ---
+    const veto = Object.values(breakdown).some(score => score === 1);
+    const globalIndex = totalScore / 10;
 
-    // Filtros Excluyentes Inmediatos (Dictamen ROJO)
-    if (judicialDefaultDeclaration) {
-        return {
-            status: 'ROJO',
-            color: 'bg-red-100 text-red-800 border-red-400',
-            chartColor: '#f87171', // red-400
-            recommendation: 'Declaración verbal de mora o proceso judicial vigente.',
-            paymentCapacityPct: paymentCapacityPct,
-            netIncome: netIncome
-        };
-    }
-    if (age < 18 || age > 68) {
-        return {
-            status: 'ROJO',
-            color: 'bg-red-100 text-red-800 border-red-400',
-            chartColor: '#f87171', // red-400
-            recommendation: `Edad (${age} años) fuera del rango de política crediticia (18-68).`,
-            paymentCapacityPct: paymentCapacityPct,
-            netIncome: netIncome
-        };
-    }
-    if (paymentCapacityPct < 100) {
-        // 4. Recálculo Sugerido: Cuota máxima para alcanzar 100% de CP
-        const maxSuggestedPayment = netIncome;
-        return {
-            status: 'ROJO',
-            color: 'bg-red-100 text-red-800 border-red-400',
-            chartColor: '#f87171', // red-400
-            recommendation: 'Capacidad de pago insuficiente para cubrir la cuota proyectada.',
-            paymentCapacityPct: paymentCapacityPct,
-            netIncome: netIncome,
-            maxSuggestedPayment: maxSuggestedPayment
-        };
-    }
+    let status = 'ROJO';
+    let color = 'bg-red-100 text-red-800 border-red-400';
+    let chartColor = '#f87171';
+    let recommendation = 'Solicitud rechazada por riesgo de crédito.';
 
-    // Evaluación de Viabilidad Condicionada (Dictamen AMARILLO)
-    if (paymentCapacityPct >= 100 && paymentCapacityPct < 120) {
-        // 4. Recálculo Sugerido: Cuota máxima para alcanzar 120% de CP
-        const maxSuggestedPayment = netIncome / 1.2;
-        return {
-            status: 'AMARILLO',
-            color: 'bg-yellow-100 text-yellow-800 border-yellow-400',
-            chartColor: '#facc15', // yellow-400
-            recommendation: 'Capacidad de pago ajustada. Se sugiere evaluar ampliación de plazo, ajuste de monto o requerimiento de garante.',
-            paymentCapacityPct: paymentCapacityPct,
-            netIncome: netIncome,
-            maxSuggestedPayment: maxSuggestedPayment
-        };
+    if (veto) {
+        status = 'ROJO';
+        color = 'bg-red-100 text-red-800 border-red-400';
+        chartColor = '#f87171';
+        recommendation = 'Se aplica veto por mora severa, créditos en mora o deuda indirecta en mora.';
+    } else if (globalIndex >= 7) {
+        status = 'VERDE';
+        color = 'bg-green-100 text-green-800 border-green-400';
+        chartColor = '#4ade80';
+        recommendation = 'Preaprobado. El cliente cumple con los parámetros mínimos de estabilidad, respaldo y capacidad crediticia.';
+    } else if (globalIndex >= 5) {
+        status = 'AMARILLO';
+        color = 'bg-yellow-100 text-yellow-800 border-yellow-400';
+        chartColor = '#facc15';
+        recommendation = 'Observado. Requiere revisión manual y análisis complementario antes de aprobar.';
+    } else {
+        status = 'ROJO';
+        color = 'bg-red-100 text-red-800 border-red-400';
+        chartColor = '#f87171';
+        recommendation = 'Rechazado. El índice global está por debajo del nivel mínimo de aprobación.';
     }
 
-    // Evaluación de Alta Viabilidad (Dictamen VERDE)
-    // Esta es la condición por defecto si no se cumplen las anteriores (CP >= 120)
     return {
-        status: 'VERDE',
-        color: 'bg-green-100 text-green-800 border-green-400',
-        chartColor: '#4ade80', // green-400
-        recommendation: 'Evaluación preliminar favorable. Capacidad de pago holgada. Continuar con la recopilación de carpetas y visita de campo.',
-        paymentCapacityPct: paymentCapacityPct,
-        netIncome: netIncome
+        status,
+        color,
+        chartColor,
+        recommendation,
+        totalScore,
+        globalIndex,
+        veto,
+        breakdown
     };
 }
 
@@ -201,57 +275,55 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const btnEvaluate = document.getElementById('btn-evaluate');
     btnEvaluate.addEventListener('click', async () => {
-        // 1. Recopilar datos del nuevo formulario
         const formData = {
-            age: parseInt(document.getElementById('client-age').value),
+            age: Number(document.getElementById('client-age').value),
             maritalStatus: document.getElementById('marital-status').value,
-            businessAntiquity: parseInt(document.getElementById('business-antiquity').value),
-            judicialDefaultDeclaration: document.getElementById('judicial-default-declaration').checked,
-            totalIncome: parseFloat(document.getElementById('total-income').value),
-            operatingCosts: parseFloat(document.getElementById('operating-costs').value),
-            familyExpenses: parseFloat(document.getElementById('family-expenses').value),
-            estimatedPayment: parseFloat(document.getElementById('estimated-payment').value),
+            housingType: document.getElementById('housing-type').value,
+            dependents: document.getElementById('dependents').value,
+            patrimony: document.getElementById('patrimony').value,
+            guarantor: document.getElementById('guarantor').value,
+            creditHistory: document.getElementById('credit-history').value,
+            activeCredits: document.getElementById('active-credits').value,
+            indirectDebt: document.getElementById('indirect-debt').value,
+            businessAntiquity: document.getElementById('business-antiquity').value,
         };
 
-        // 2. Validación de entradas básicas
-        for (const key in formData) {
-            const value = formData[key];
-            // La validación solo aplica a campos numéricos.
-            // Se permite que los costos/gastos sean 0, pero no negativos.
-            if (typeof value === 'number') {
-                // `estimatedPayment` y `totalIncome` deben ser mayores a 0.
-                if (isNaN(value) || value < 0 || (['estimatedPayment', 'totalIncome'].includes(key) && value === 0)) {
-                    alert(`Por favor, completa el campo '${key}' con un valor numérico válido y positivo.`);
-                    return;
-                }
+        for (const [key, value] of Object.entries(formData)) {
+            if (key === 'age' && (!Number.isFinite(value) || value <= 0)) {
+                alert('Por favor ingresa una edad válida entre 18 y 68 años.');
+                return;
+            }
+
+            if (key !== 'age' && (!value || value.trim() === '')) {
+                alert('Completa todas las variables del modelo de preevaluación antes de evaluar.');
+                return;
             }
         }
 
-        // 3. Ejecutar el nuevo motor de evaluación crediticia
         const scoringResult = runCreditEngine(formData);
-
-        // 4. Mostrar el resultado final en la UI
         const display = document.getElementById('result-display');
+
         display.innerHTML = `
             <div class="p-4 rounded-xl border-2 ${scoringResult.color} text-center animate-in fade-in zoom-in duration-300">
-                <p class="text-sm uppercase tracking-widest font-bold mb-2">Dictamen Preliminar</p>
+                <p class="text-sm uppercase tracking-widest font-bold mb-2">Resultado de Evaluación</p>
                 <div class="flex items-center justify-center space-x-4">
-                    <div class="relative">
-                        ${createDonutChart(scoringResult.paymentCapacityPct, scoringResult.chartColor)}
+                    <div class="relative flex items-center justify-center">
+                        ${createDonutChart(scoringResult.globalIndex, scoringResult.chartColor)}
                         <div class="absolute inset-0 flex flex-col items-center justify-center">
-                            <span class="font-black text-2xl">${scoringResult.paymentCapacityPct.toFixed(0)}%</span>
-                            <span class="text-xs uppercase -mt-1">de CP</span>
+                            <span class="font-black text-2xl">${scoringResult.globalIndex.toFixed(2)}</span>
+                            <span class="text-[10px] uppercase -mt-1">Ig</span>
                         </div>
                     </div>
-                    <h3 class="text-5xl font-black">${scoringResult.status}</h3>
+                    <div class="text-left">
+                        <h3 class="text-4xl font-black">${scoringResult.status}</h3>
+                        <p class="text-xs uppercase tracking-widest">Suma: ${scoringResult.totalScore} / 100</p>
+                    </div>
                 </div>
                 <p class="text-xs mt-4 font-medium">${scoringResult.recommendation}</p>
-                
-                ${scoringResult.maxSuggestedPayment ? `
-                <div class="mt-4 pt-3 border-t border-black border-opacity-10">
-                    <p class="text-xs">Se sugiere una cuota máxima de <b class="text-base">Bs. ${scoringResult.maxSuggestedPayment.toFixed(2)}</b> para mejorar la viabilidad.</p>
+
+                <div class="mt-4 pt-3 border-t border-black border-opacity-10 text-left text-xs space-y-1">
+                    ${Object.entries(scoringResult.breakdown).map(([key, point]) => `<div class="flex justify-between"><span>${key}</span><span class="font-bold">${point} pts</span></div>`).join('')}
                 </div>
-                ` : ''}
 
                 <button id="btn-save" class="w-full btn-primary-custom font-bold py-3 rounded-lg shadow-lg transition-all active:scale-95 mt-4">
                     GUARDAR EVALUACIÓN
@@ -260,31 +332,30 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         display.classList.remove('hidden');
 
-        // 5. Añadir evento al nuevo botón de guardar
         document.getElementById('btn-save').addEventListener('click', async () => {
             const saveButton = document.getElementById('btn-save');
             saveButton.disabled = true;
             saveButton.innerText = 'GUARDANDO...';
 
             try {
-                // El método .add() genera un ID único automáticamente
                 await evaluationsRef.add({
-                    ...formData, // Guarda todos los datos del formulario
+                    ...formData,
                     resultStatus: scoringResult.status,
                     resultColor: scoringResult.color,
                     recommendation: scoringResult.recommendation,
-                    paymentCapacityPct: scoringResult.paymentCapacityPct,
-                    netIncome: scoringResult.netIncome,
-                    date: firebase.firestore.FieldValue.serverTimestamp() // Fecha/hora del servidor
+                    totalScore: scoringResult.totalScore,
+                    globalIndex: scoringResult.globalIndex,
+                    veto: scoringResult.veto,
+                    breakdown: scoringResult.breakdown,
+                    date: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                
-                // Limpiar formulario y ocultar resultado para la siguiente evaluación
+
                 document.querySelectorAll('#view-home input, #view-home select').forEach(el => el.value = '');
                 display.classList.add('hidden');
 
             } catch (error) {
-                console.error("Error al guardar en Firestore:", error);
-                alert("Error de conexión al guardar en la base de datos. Inténtalo de nuevo.");
+                console.error('Error al guardar en Firestore:', error);
+                alert('Error de conexión al guardar en la base de datos. Inténtalo de nuevo.');
                 saveButton.disabled = false;
                 saveButton.innerText = 'GUARDAR EVALUACIÓN';
             }
