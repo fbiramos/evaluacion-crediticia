@@ -6,7 +6,7 @@
     <title>CreditEval - Motor de Riesgo</title>
     <!-- Tailwind CSS para diseño rápido -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css?v=8">
+    <link rel="stylesheet" href="style.css?v=9">
     <link rel="manifest" href="manifest.json">
 </head>
 <body class="bg-gray-900 antialiased font-sans">
@@ -31,122 +31,171 @@
             <div class="max-w-4xl mx-auto custom-card p-6 rounded-2xl shadow-xl">
                 <h2 class="text-2xl font-semibold mb-6 text-center uppercase">EVALUACIÓN PRELIMINAR</h2>
                 <div class="space-y-6">
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Nombre Completo</label>
-                            <input type="text" id="full-name" placeholder="Ej: María López" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                    <div class="step-progress" aria-label="Progreso de la evaluación">
+                        <div class="step-item is-active" data-step-item="1"><span>1</span><small>Datos</small></div>
+                        <div class="step-item" data-step-item="2"><span>2</span><small>Sociodem.</small></div>
+                        <div class="step-item" data-step-item="3"><span>3</span><small>Patrimonial</small></div>
+                        <div class="step-item" data-step-item="4"><span>4</span><small>Financiero</small></div>
+                    </div>
+                    <div class="mb-4 flex items-center justify-between text-[10px] uppercase tracking-wider text-muted">
+                        <span>Bloque</span>
+                        <span id="step-indicator">1 / 4</span>
+                    </div>
+
+                    <div class="form-step" data-step="1">
+                        <div class="form-step-header mb-4">
+                            <span class="form-step-title">Datos del solicitante</span>
                         </div>
-                        <div>
-                            <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Carnet de Identidad</label>
-                            <input type="text" id="identity-card" placeholder="Ej: 12345678" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Nombre Completo</label>
+                                <input type="text" id="full-name" placeholder="Ej: María López" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Carnet de Identidad</label>
+                                <input type="text" id="identity-card" placeholder="Ej: 12345678" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Edad</label>
-                            <input type="number" id="client-age" min="18" max="68" placeholder="Ej: 35" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                    <div class="form-step hidden" data-step="2">
+                        <div class="form-step-header mb-4">
+                            <span class="form-step-title">Variables sociodemográficas</span>
                         </div>
-                        <div>
-                            <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Estado Civil</label>
-                            <select id="marital-status" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
-                                <option value="">Selecciona</option>
-                                <option value="Casado">Casado</option>
-                                <option value="Conviviente">Conviviente</option>
-                                <option value="Soltero">Soltero</option>
-                                <option value="Divorciado">Divorciado</option>
-                                <option value="Viudo">Viudo</option>
-                            </select>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Edad</label>
+                                <input type="number" id="client-age" min="18" max="68" placeholder="Ej: 35" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Estado Civil</label>
+                                <select id="marital-status" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="">Selecciona</option>
+                                    <option value="Casado(a)">Casado(a)</option>
+                                    <option value="Concubino(a)">Concubino(a)</option>
+                                    <option value="Separado(a)">Separado(a)</option>
+                                    <option value="Divorciado(a)">Divorciado(a)</option>
+                                    <option value="Soltero(a)">Soltero(a)</option>
+                                    <option value="Viudo(a)">Viudo(a)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Estabilidad Domiciliaria</label>
+                                <select id="housing-type" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="">Selecciona</option>
+                                    <option value="Vivienda propia">Vivienda propia</option>
+                                    <option value="Vivienda de familia">Vivienda de familia</option>
+                                    <option value="Anticrético vigente">Anticrético vigente</option>
+                                    <option value="Alquiler">Alquiler</option>
+                                    <option value="Anticrético no vigente">Anticrético no vigente</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Carga Familiar</label>
+                                <select id="dependents" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="">Selecciona</option>
+                                    <option value="1-2">1-2</option>
+                                    <option value="3-4">3-4</option>
+                                    <option value="0">0</option>
+                                    <option value="Sin hijos">Sin hijos</option>
+                                    <option value="5 o más">5 o más</option>
+                                    <option value="Más de 4">Más de 4</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Estabilidad Domiciliaria</label>
-                            <select id="housing-type" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
-                                <option value="">Selecciona</option>
-                                <option value="Propietario">Propietario</option>
-                                <option value="Vivienda familiar">Vivienda familiar</option>
-                                <option value="Alquilado">Alquilado</option>
-                            </select>
+                    <div class="form-step hidden" data-step="3">
+                        <div class="form-step-header mb-4">
+                            <span class="form-step-title">Dimensión patrimonial y de respaldo</span>
                         </div>
-                        <div>
-                            <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Carga Familiar</label>
-                            <select id="dependents" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
-                                <option value="">Selecciona</option>
-                                <option value="0">0</option>
-                                <option value="1-2">1-2</option>
-                                <option value="3-4">3-4</option>
-                                <option value="5 o más">5 o más</option>
-                            </select>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Respaldo Patrimonial</label>
+                                <select id="patrimony" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="">Selecciona</option>
+                                    <option value="Inmueble propio con documentación">Inmueble propio con documentación</option>
+                                    <option value="Vehículo propio">Vehículo propio</option>
+                                    <option value="Maquinaria y equipo de producción">Maquinaria y equipo de producción</option>
+                                    <option value="Sin bienes declarados de respaldo">Sin bienes declarados de respaldo</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Disponibilidad de Garante</label>
+                                <select id="guarantor" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="">Selecciona</option>
+                                    <option value="Garante propietario con inmueble registrado">Garante propietario con inmueble registrado</option>
+                                    <option value="Garante personal con ingresos estables verificables">Garante personal con ingresos estables verificables</option>
+                                    <option value="Respaldo en bienes muebles">Respaldo en bienes muebles</option>
+                                    <option value="Sin garante disponible">Sin garante disponible</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="grid md:grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <div>
-                            <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Respaldo Patrimonial</label>
-                            <select id="patrimony" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
-                                <option value="">Selecciona</option>
-                                <option value="Inmueble/Vehículo propio">Inmueble/Vehículo propio</option>
-                                <option value="Vehículo propio">Vehículo propio</option>
-                                <option value="Sin bienes registrados">Sin bienes registrados</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Disponibilidad de Garante</label>
-                            <select id="guarantor" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
-                                <option value="">Selecciona</option>
-                                <option value="Garante con ingresos estables">Garante con ingresos estables</option>
-                                <option value="Garante con ingresos variables">Garante con ingresos variables</option>
-                                <option value="Sin garante">Sin garante</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid md:grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <div>
-                            <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Historial Crediticio</label>
-                            <select id="credit-history" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
-                                <option value="">Selecciona</option>
-                                <option value="Impecable / Sin mora">Impecable / Sin mora</option>
-                                <option value="Mora ocasional < 30 días">Mora ocasional &lt; 30 días</option>
-                                <option value="Mora severa">Mora severa</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Créditos Vigentes</label>
-                            <select id="active-credits" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
-                                <option value="">Selecciona</option>
-                                <option value="Sin créditos activos o 1 al día">Sin créditos activos o 1 al día</option>
-                                <option value="2 créditos al día">2 créditos al día</option>
-                                <option value="Créditos en mora">Créditos en mora</option>
-                            </select>
-                        </div>
-                        <div>
+                        <div class="mt-4">
                             <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Deuda Indirecta / Garante</label>
                             <select id="indirect-debt" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
                                 <option value="">Selecciona</option>
-                                <option value="No es garante activo">No es garante activo</option>
-                                <option value="Garante de crédito al día">Garante de crédito al día</option>
-                                <option value="Garante de crédito en mora">Garante de crédito en mora</option>
+                                <option value="No es garante activo de ninguna deuda de terceros">No es garante activo de ninguna deuda de terceros</option>
+                                <option value="Garante de 1 crédito vigente de un tercero al día">Garante de 1 crédito vigente de un tercero al día</option>
+                                <option value="Garante activo en más de 2 créditos de terceros con problemas de pago">Garante activo en más de 2 créditos de terceros con problemas de pago</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Antigüedad en la Actividad</label>
-                        <select id="business-antiquity" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
-                            <option value="">Selecciona</option>
-                            <option value="Más de 3 años continuos">Más de 3 años continuos</option>
-                            <option value="Aproximadamente 3 años">Aproximadamente 3 años</option>
-                            <option value="1-3 años">1-3 años</option>
-                            <option value="Menos de 1 año">Menos de 1 año</option>
-                        </select>
+                    <div class="form-step hidden" data-step="4">
+                        <div class="form-step-header mb-4">
+                            <span class="form-step-title">Dimensión financiera y de negocio</span>
+                        </div>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Historial Crediticio</label>
+                                <select id="credit-history" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="">Selecciona</option>
+                                    <option value="Historial impecable reportado verbalmente">Historial impecable reportado verbalmente</option>
+                                    <option value="Historial con retrasos menores regularizados">Historial con retrasos menores regularizados</option>
+                                    <option value="Sin historial crediticio previo">Sin historial crediticio previo</option>
+                                    <option value="Declaración verbal de mora activa">Declaración verbal de mora activa</option>
+                                    <option value="Ejecuciones judiciales">Ejecuciones judiciales</option>
+                                    <option value="Calificación deficiente">Calificación deficiente</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Créditos Vigentes</label>
+                                <select id="active-credits" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="">Selecciona</option>
+                                    <option value="0 a 1 crédito vigente">0 a 1 crédito vigente</option>
+                                    <option value="2 créditos vigentes al día">2 créditos vigentes al día</option>
+                                    <option value="3 créditos vigentes en distintas entidades">3 créditos vigentes en distintas entidades</option>
+                                    <option value="4 créditos vigentes o más">4 créditos vigentes o más</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Antigüedad en la Actividad</label>
+                                <select id="business-antiquity" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="">Selecciona</option>
+                                    <option value="2 años o más de operación continua">2 años o más de operación continua</option>
+                                    <option value="De 1 a casi 2 años de operación continua">De 1 a casi 2 años de operación continua</option>
+                                    <option value="Menos de 12 meses de antigüedad">Menos de 12 meses de antigüedad</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
-                    <button id="btn-evaluate" class="w-full btn-primary-custom font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95 mt-4">
-                        EVALUAR
-                    </button>
+                    <div class="flex justify-between gap-3 pt-4">
+                        <button id="btn-prev-step" type="button" class="hidden flex-1 bg-gray-200 text-gray-800 font-bold py-3 rounded-xl transition-all active:scale-95">
+                            ANTERIOR
+                        </button>
+                        <button id="btn-next-step" type="button" class="flex-1 btn-primary-custom font-bold py-3 rounded-xl shadow-lg transition-all active:scale-95">
+                            SIGUIENTE
+                        </button>
+                        <button id="btn-evaluate" class="hidden flex-1 btn-primary-custom font-bold py-3 rounded-xl shadow-lg transition-all active:scale-95">
+                            EVALUAR
+                        </button>
+                    </div>
                 </div>
 
                 <div id="result-display" class="mt-6 hidden transition-all duration-300"></div>
@@ -166,7 +215,7 @@
 
                     <div class="pt-4 border-t border-gray-200">
                         <p class="text-[10px] text-muted uppercase font-bold mb-2 tracking-widest">Información de App</p>
-                        <p class="text-sm">Versión: <span id="app-version">v8</span></p>
+                        <p class="text-sm">Versión: <span id="app-version">v9</span></p>
                         <p class="text-sm">Estado: <span class="text-green-500 font-bold">Online</span></p>
                         <button id="btn-sign-out" class="w-full mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors" title="Sign Out">Sign Out</button>
                         <p class="text-xs text-muted mt-4 text-center">© 2024 CreditEval Professional System</p>
@@ -203,7 +252,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
     <!-- Cargamos la lógica al final -->
-    <script src="app.js?v=8"></script>
+    <script src="app.js?v=9"></script>
     <script>
         // Registro del Service Worker para actualizaciones
         if ('serviceWorker' in navigator) {

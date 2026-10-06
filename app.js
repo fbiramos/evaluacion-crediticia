@@ -23,63 +23,103 @@ const evaluationsRef = db.collection('evaluations');
  */
 function getAgeScore(age) {
     if (age < 18 || age > 68) return 1;
-    if (age >= 18 && age <= 25) return 7;
-    if (age >= 26 && age <= 35) return 10;
-    if (age >= 36 && age <= 45) return 9;
-    if (age >= 46 && age <= 55) return 8;
-    return 7;
+    if (age >= 26 && age <= 55) return 10;
+    if ((age >= 18 && age <= 25) || (age >= 56 && age <= 68)) return 7;
+    return 1;
 }
 
 function getScoreValue(category, value) {
     const scoreMap = {
         'marital-status': {
+            'Casado(a)': 10,
+            'Concubino(a)': 10,
             'Casado': 10,
             'Conviviente': 10,
-            'Soltero': 7,
+            'Separado(a)': 7,
+            'Divorciado(a)': 7,
+            'Separado': 7,
             'Divorciado': 7,
-            'Viudo': 7
+            'Soltero(a)': 5,
+            'Viudo(a)': 5,
+            'Soltero': 5,
+            'Viudo': 5
         },
         'housing-type': {
+            'Vivienda propia': 10,
             'Propietario': 10,
+            'Vivienda de familia': 7,
             'Vivienda familiar': 7,
-            'Alquilado': 5
+            'Anticrético vigente': 7,
+            'Alquiler': 3,
+            'Alquilado': 3,
+            'Anticrético no vigente': 3
         },
         'dependents': {
-            '0': 10,
+            '0': 3,
+            'Sin hijos': 3,
             '1-2': 10,
             '3-4': 7,
-            '5 o más': 4
+            '5 o más': 3,
+            'Más de 4': 3
         },
         'patrimony': {
+            'Inmueble propio con documentación': 10,
+            'Inmueble propio': 10,
             'Inmueble/Vehículo propio': 10,
             'Vehículo propio': 7,
-            'Sin bienes registrados': 4
+            'Maquinaria y equipo de producción': 7,
+            'Sin bienes declarados de respaldo': 1,
+            'Sin bienes registrados': 1
         },
         'guarantor': {
-            'Garante con ingresos estables': 10,
-            'Garante con ingresos variables': 7,
-            'Sin garante': 4
+            'Garante propietario con inmueble registrado': 10,
+            'Garante propietario con inmueble debidamente registrado': 10,
+            'Garante personal con ingresos estables verificables': 7,
+            'Garante personal con ingresos estables': 7,
+            'Respaldo en bienes muebles': 7,
+            'Sin garante disponible': 3,
+            'Sin garante': 3
         },
         'credit-history': {
+            'Historial impecable reportado verbalmente': 10,
             'Impecable / Sin mora': 10,
-            'Mora ocasional < 30 días': 5,
+            'Historial con retrasos menores regularizados': 8,
+            'Retrasos menores esporádicos pero regularizados': 8,
+            'Sin historial crediticio previo': 7,
+            'Primer crédito': 7,
+            'Declaración verbal de mora activa': 1,
+            'Ejecuciones judiciales': 1,
+            'Calificación deficiente': 1,
+            'Mora ocasional < 30 días': 1,
             'Mora severa': 1
         },
         'active-credits': {
+            '0 a 1 crédito vigente': 10,
             'Sin créditos activos o 1 al día': 10,
+            '2 créditos vigentes al día': 7,
             '2 créditos al día': 7,
+            '3 créditos vigentes en distintas entidades': 3,
+            '3 créditos vigentes': 3,
+            '4 créditos vigentes o más': 1,
+            '4 créditos vigentes': 1,
             'Créditos en mora': 1
         },
         'indirect-debt': {
+            'No es garante activo de ninguna deuda de terceros': 10,
             'No es garante activo': 10,
+            'Garante de 1 crédito vigente de un tercero al día': 7,
             'Garante de crédito al día': 7,
+            'Garante activo en más de 2 créditos de terceros con problemas de pago': 1,
+            'Garante activo en más de 2 créditos de terceros con morosidad declarada': 1,
             'Garante de crédito en mora': 1
         },
         'business-antiquity': {
-            'Más de 3 años continuos': 10,
-            'Aproximadamente 3 años': 7,
-            '1-3 años': 5,
-            'Menos de 1 año': 2
+            '2 años o más de operación continua': 10,
+            '24 meses o más': 10,
+            'De 1 a casi 2 años de operación continua': 7,
+            '12 a 23 meses': 7,
+            'Menos de 12 meses de antigüedad': 1,
+            'Menos de 1 año': 1
         }
     };
 
@@ -339,9 +379,88 @@ document.addEventListener('DOMContentLoaded', () => {
     if (signOutButton) {
         signOutButton.addEventListener('click', window.signOut);
     }
-    
+
+    const formSteps = Array.from(document.querySelectorAll('.form-step'));
+    const stepItems = Array.from(document.querySelectorAll('.step-item'));
+    const stepIndicator = document.getElementById('step-indicator');
+    const prevStepButton = document.getElementById('btn-prev-step');
+    const nextStepButton = document.getElementById('btn-next-step');
     const btnEvaluate = document.getElementById('btn-evaluate');
+
+    let currentStep = 1;
+    const totalSteps = formSteps.length;
+
+    function validateCurrentStep() {
+        const currentStepElement = formSteps[currentStep - 1];
+        const inputs = currentStepElement.querySelectorAll('input, select');
+
+        for (const field of inputs) {
+            const value = field.value ? field.value.trim() : '';
+            if (!value) {
+                alert('Completa todos los campos del bloque antes de continuar.');
+                field.focus();
+                return false;
+            }
+        }
+
+        if (currentStep === 1) {
+            const fullName = document.getElementById('full-name').value.trim();
+            const identityCard = document.getElementById('identity-card').value.trim();
+            if (!fullName || !identityCard) {
+                alert('Ingresa el nombre completo y el carnet de identidad antes de continuar.');
+                return false;
+            }
+        }
+
+        if (currentStep === 2) {
+            const age = Number(document.getElementById('client-age').value);
+            if (!Number.isFinite(age) || age <= 0 || age < 18 || age > 68) {
+                alert('Por favor ingresa una edad válida entre 18 y 68 años.');
+                document.getElementById('client-age').focus();
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function updateStepUI() {
+        formSteps.forEach((step, index) => {
+            const isActive = index === currentStep - 1;
+            step.classList.toggle('hidden', !isActive);
+        });
+
+        stepItems.forEach((item, index) => {
+            const isCurrent = index + 1 === currentStep;
+            const isComplete = index + 1 < currentStep;
+            item.classList.toggle('is-active', isCurrent);
+            item.classList.toggle('is-complete', isComplete);
+        });
+
+        stepIndicator.textContent = `${currentStep} / ${totalSteps}`;
+        prevStepButton.classList.toggle('hidden', currentStep === 1);
+        nextStepButton.classList.toggle('hidden', currentStep === totalSteps);
+        btnEvaluate.classList.toggle('hidden', currentStep !== totalSteps);
+    }
+
+    prevStepButton.addEventListener('click', () => {
+        if (currentStep > 1) {
+            currentStep -= 1;
+            updateStepUI();
+        }
+    });
+
+    nextStepButton.addEventListener('click', () => {
+        if (!validateCurrentStep()) return;
+        if (currentStep < totalSteps) {
+            currentStep += 1;
+            updateStepUI();
+        }
+    });
+
     btnEvaluate.addEventListener('click', async () => {
+        if (!validateCurrentStep()) return;
+
         const fullName = document.getElementById('full-name').value.trim();
         const identityCard = document.getElementById('identity-card').value.trim();
 
@@ -380,33 +499,70 @@ document.addEventListener('DOMContentLoaded', () => {
         const scoringResult = runCreditEngine(formData);
         const display = document.getElementById('result-display');
 
+        const summaryFields = [
+            ['Nombre completo', formData.fullName],
+            ['Carnet de identidad', formData.identityCard],
+            ['Edad', formData.age],
+            ['Estado civil', formData.maritalStatus],
+            ['Estabilidad domiciliaria', formData.housingType],
+            ['Carga familiar', formData.dependents],
+            ['Respaldo patrimonial', formData.patrimony],
+            ['Disponibilidad de garante', formData.guarantor],
+            ['Historial crediticio', formData.creditHistory],
+            ['Créditos vigentes', formData.activeCredits],
+            ['Deuda indirecta / garante', formData.indirectDebt],
+            ['Antigüedad en la actividad', formData.businessAntiquity]
+        ];
+
         display.innerHTML = `
-            <div class="p-4 rounded-xl border-2 ${scoringResult.color} text-center animate-in fade-in zoom-in duration-300">
-                <p class="text-sm uppercase tracking-widest font-bold mb-2">Resultado de Evaluación</p>
-                <div class="flex items-center justify-center space-x-4">
-                    <div class="relative flex items-center justify-center">
-                        ${createDonutChart(scoringResult.globalIndex, scoringResult.chartColor)}
-                        <div class="absolute inset-0 flex flex-col items-center justify-center">
-                            <span class="font-black text-2xl">${scoringResult.globalIndex.toFixed(2)}</span>
-                            <span class="text-[10px] uppercase -mt-1">Ig</span>
+            <div class="space-y-4">
+                <div class="p-4 rounded-xl border-2 ${scoringResult.color} text-center animate-in fade-in zoom-in duration-300">
+                    <p class="text-sm uppercase tracking-widest font-bold mb-2">Confirmación de Evaluación</p>
+                    <div class="flex items-center justify-center space-x-4">
+                        <div class="relative flex items-center justify-center">
+                            ${createDonutChart(scoringResult.globalIndex, scoringResult.chartColor)}
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="font-black text-2xl">${scoringResult.globalIndex.toFixed(2)}</span>
+                                <span class="text-[10px] uppercase -mt-1">Ig</span>
+                            </div>
+                        </div>
+                        <div class="text-left">
+                            <h3 class="text-4xl font-black">${scoringResult.status}</h3>
+                            <p class="text-xs uppercase tracking-widest">Suma: ${scoringResult.totalScore} / 100</p>
                         </div>
                     </div>
-                    <div class="text-left">
-                        <h3 class="text-4xl font-black">${scoringResult.status}</h3>
-                        <p class="text-xs uppercase tracking-widest">Suma: ${scoringResult.totalScore} / 100</p>
+                    <p class="text-xs mt-4 font-medium">¿Deseas guardar esta evaluación?</p>
+
+                    <div class="mt-4 flex gap-3">
+                        <button id="btn-edit-eval" class="flex-1 bg-gray-200 text-gray-800 font-bold py-3 rounded-lg shadow-lg transition-all active:scale-95">
+                            EDITAR
+                        </button>
+                        <button id="btn-save" class="flex-1 btn-primary-custom font-bold py-3 rounded-lg shadow-lg transition-all active:scale-95">
+                            GUARDAR
+                        </button>
                     </div>
                 </div>
-                <p class="text-xs mt-4 font-medium">${scoringResult.recommendation}</p>
 
-                <div class="mt-4 pt-3 border-t border-black border-opacity-10 text-left text-xs space-y-1">
-                    ${Object.entries(scoringResult.breakdown).map(([key, point]) => `<div class="flex justify-between"><span>${key}</span><span class="font-bold">${point} pts</span></div>`).join('')}
+                <div class="p-4 rounded-xl border border-gray-200 bg-white shadow-sm text-left">
+                    <p class="text-sm uppercase tracking-widest font-bold mb-3 text-gray-700">Resumen Final</p>
+                    <div class="text-xs space-y-2">
+                        ${summaryFields.map(([label, value]) => `<div class="flex justify-between gap-3"><span class="text-muted">${label}:</span><span class="font-semibold text-right">${value}</span></div>`).join('')}
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-200 text-xs space-y-1">
+                        <p class="font-bold uppercase tracking-widest text-[10px]">Puntaje por variable</p>
+                        ${Object.entries(scoringResult.breakdown).map(([key, point]) => `<div class="flex justify-between"><span>${key}</span><span class="font-bold">${point} pts</span></div>`).join('')}
+                    </div>
+                    <p class="text-xs mt-4 font-medium">${scoringResult.recommendation}</p>
                 </div>
-
-                <button id="btn-save" class="w-full btn-primary-custom font-bold py-3 rounded-lg shadow-lg transition-all active:scale-95 mt-4">
-                    GUARDAR EVALUACIÓN
-                </button>
             </div>
         `;
+
+        document.getElementById('btn-edit-eval').addEventListener('click', () => {
+            const lastFilledStep = Math.min(Math.max(currentStep, 1), totalSteps);
+            currentStep = lastFilledStep;
+            updateStepUI();
+            display.classList.add('hidden');
+        });
         display.classList.remove('hidden');
 
         document.getElementById('btn-save').addEventListener('click', async () => {
@@ -429,6 +585,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 document.querySelectorAll('#view-home input, #view-home select').forEach(el => el.value = '');
                 display.classList.add('hidden');
+                currentStep = 1;
+                updateStepUI();
 
             } catch (error) {
                 console.error('Error al guardar en Firestore:', error);
@@ -439,7 +597,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Pulido: Limpiar el resultado visual si el usuario modifica algún dato
+    updateStepUI();
+
     document.getElementById('view-home').addEventListener('input', () => {
         const display = document.getElementById('result-display');
         if (!display.classList.contains('hidden')) {
