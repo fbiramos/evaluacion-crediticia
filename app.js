@@ -232,40 +232,98 @@ window.signOut = async () => {
     }
 };
 
-// 3. Escucha en tiempo real de Firestore
-function initRealtimeUpdates() {
-    evaluationsRef.orderBy('date', 'desc').onSnapshot(snapshot => {
-        const list = document.getElementById('history-list');
-        if (snapshot.empty) {
-            list.innerHTML = `<p class="text-gray-500 text-center italic">No hay registros aún...</p>`;
-            return;
+function renderHistoryList(items) {
+    const list = document.getElementById('history-list');
+    const searchInput = document.getElementById('history-search');
+
+    if (!items || items.length === 0) {
+        list.innerHTML = `<p class="text-gray-500 text-center italic">No hay registros aún...</p>`;
+        return;
+    }
+
+    list.innerHTML = items.map(doc => {
+        const ev = doc.data();
+        const dateStr = ev.date ? ev.date.toDate().toLocaleString('es-BO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Procesando...';
+        const fullName = ev.fullName || 'Sin nombre';
+        const identityCard = ev.identityCard || 'Sin CI';
+        const status = ev.resultStatus || 'SIN ESTADO';
+        const score = ev.totalScore ?? ev.globalIndex ?? 0;
+        const searchText = `${fullName} ${identityCard}`.toLowerCase();
+        const activeFilter = (searchInput?.value || '').trim().toLowerCase();
+
+        if (activeFilter && !searchText.includes(activeFilter)) {
+            return null;
         }
 
-        list.innerHTML = snapshot.docs.map(doc => {
-            const ev = doc.data();
-            const dateStr = ev.date ? ev.date.toDate().toLocaleString('es-BO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Procesando...';
-            const fullName = ev.fullName || 'Sin nombre';
-            const identityCard = ev.identityCard || 'Sin CI';
-            const status = ev.resultStatus || 'SIN ESTADO';
-            const score = ev.totalScore ?? ev.globalIndex ?? 0;
-
-            return `
-                <div class="custom-card p-3 rounded-xl border ${ev.resultColor || 'border-gray-300'} shadow-sm mb-3">
-                    <div class="flex justify-between items-start gap-3">
-                        <div class="flex-1 text-xs overflow-hidden">
-                            <p class="font-bold text-sm truncate">${fullName}</p>
-                            <p class="text-[10px] text-muted uppercase">CI: ${identityCard}</p>
-                            <p class="text-[10px] text-muted uppercase mt-1">${dateStr}</p>
-                            <p class="opacity-80 mt-1 truncate">Edad: ${ev.age || 'N/A'} | Estado: ${ev.maritalStatus || 'N/A'} | Puntaje: <span class="font-bold">${score}</span></p>
-                        </div>
-                        <div class="text-right">
-                            <span class="font-black text-lg block">${status}</span>
-                            <button onclick="deleteEvaluation('${doc.id}')" class="text-gray-500 hover:text-red-400 p-2 transition-colors mt-1">🗑️</button>
-                        </div>
+        return `
+            <div class="custom-card p-3 rounded-xl border ${ev.resultColor || 'border-gray-300'} shadow-sm mb-3 cursor-pointer hover:opacity-95" data-id="${doc.id}">
+                <div class="flex justify-between items-start gap-3">
+                    <div class="flex-1 text-xs overflow-hidden">
+                        <p class="font-bold text-sm truncate">${fullName}</p>
+                        <p class="text-[10px] text-muted uppercase">CI: ${identityCard}</p>
+                        <p class="text-[10px] text-muted uppercase mt-1">${dateStr}</p>
+                        <p class="opacity-80 mt-1 truncate">Edad: ${ev.age || 'N/A'} | Estado: ${ev.maritalStatus || 'N/A'} | Puntaje: <span class="font-bold">${score}</span></p>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-black text-lg block">${status}</span>
+                        <button onclick="event.stopPropagation(); deleteEvaluation('${doc.id}')" class="text-gray-500 hover:text-red-400 p-2 transition-colors mt-1">🗑️</button>
                     </div>
                 </div>
+            </div>
+        `;
+    }).filter(Boolean).join('');
+
+    list.querySelectorAll('[data-id]').forEach(item => {
+        item.addEventListener('click', () => {
+            const id = item.getAttribute('data-id');
+            const ev = items.find(doc => doc.id === id)?.data();
+            if (!ev) return;
+
+            const detail = document.getElementById('history-detail');
+            const content = document.getElementById('history-detail-content');
+
+            content.innerHTML = `
+                <div class="grid grid-cols-2 gap-3">
+                    <div><strong>Nombre:</strong><br>${ev.fullName || 'N/A'}</div>
+                    <div><strong>CI:</strong><br>${ev.identityCard || 'N/A'}</div>
+                    <div><strong>Edad:</strong><br>${ev.age || 'N/A'}</div>
+                    <div><strong>Estado civil:</strong><br>${ev.maritalStatus || 'N/A'}</div>
+                    <div><strong>Estabilidad:</strong><br>${ev.housingType || 'N/A'}</div>
+                    <div><strong>Carga familiar:</strong><br>${ev.dependents || 'N/A'}</div>
+                    <div><strong>Patrimonio:</strong><br>${ev.patrimony || 'N/A'}</div>
+                    <div><strong>Garante:</strong><br>${ev.guarantor || 'N/A'}</div>
+                    <div><strong>Historial:</strong><br>${ev.creditHistory || 'N/A'}</div>
+                    <div><strong>Créditos vigentes:</strong><br>${ev.activeCredits || 'N/A'}</div>
+                    <div><strong>Deuda indirecta:</strong><br>${ev.indirectDebt || 'N/A'}</div>
+                    <div><strong>Negocio:</strong><br>${ev.businessAntiquity || 'N/A'}</div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-gray-200">
+                    <p><strong>Resultado:</strong> ${ev.resultStatus || 'N/A'}</p>
+                    <p><strong>Índice global:</strong> ${(ev.globalIndex ?? 0).toFixed(2)}</p>
+                    <p><strong>Puntaje total:</strong> ${ev.totalScore ?? 0}</p>
+                    <p><strong>Recomendación:</strong> ${ev.recommendation || 'N/A'}</p>
+                    <p><strong>Fecha:</strong> ${ev.date ? ev.date.toDate().toLocaleString('es-BO') : 'N/A'}</p>
+                </div>
             `;
-        }).join('');
+
+            detail.classList.remove('hidden');
+        });
+    });
+}
+
+function initRealtimeUpdates() {
+    const searchInput = document.getElementById('history-search');
+    let allRecords = [];
+
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            renderHistoryList(allRecords);
+        });
+    }
+
+    evaluationsRef.orderBy('date', 'desc').onSnapshot(snapshot => {
+        allRecords = snapshot.docs;
+        renderHistoryList(allRecords);
     }, error => {
         console.error("Error en tiempo real:", error);
         document.getElementById('history-list').innerHTML = `<p class="text-red-500 text-center uppercase font-bold">Error de sincronización</p>`;
