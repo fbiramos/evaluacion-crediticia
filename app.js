@@ -45,9 +45,10 @@ function getScoreValue(category, value) {
             'Alquilado': 5
         },
         'dependents': {
-            '0-2 dependientes': 10,
-            '3-4 dependientes': 7,
-            '5+ dependientes': 4
+            '0': 10,
+            '1-2': 10,
+            '3-4': 7,
+            '5 o más': 4
         },
         'patrimony': {
             'Inmueble/Vehículo propio': 10,
