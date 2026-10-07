@@ -213,8 +213,11 @@ function runCreditEngine(data) {
 // 2. Navegador SPA (Para cambiar entre "Nueva Evaluación" e "Historial")
 window.router = {
     navigate: (viewName) => {
-        document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-        document.getElementById(`view-${viewName}`).classList.remove('hidden');
+        const target = document.getElementById(`view-${viewName}`);
+        if (!target) return;
+
+        history.pushState({ view: viewName }, '', `#${viewName}`);
+        showView(viewName);
     }
 };
 
@@ -272,12 +275,20 @@ window.signOut = async () => {
     }
 };
 
+function showView(viewName) {
+    document.querySelectorAll('.view').forEach(view => view.classList.add('hidden'));
+    const target = document.getElementById(`view-${viewName}`);
+    if (target) {
+        target.classList.remove('hidden');
+    }
+}
+
 function closeHistoryDetail() {
     const detail = document.getElementById('history-detail');
-    if (!detail) return;
-
-    detail.classList.add('hidden');
-    detail.classList.remove('flex');
+    if (detail) {
+        detail.classList.add('hidden');
+        detail.classList.remove('flex');
+    }
     history.back();
 }
 
@@ -357,7 +368,7 @@ function renderHistoryList(items) {
 
             detail.classList.remove('hidden');
             detail.classList.add('flex');
-            history.pushState({ type: 'history-detail', id }, '', '#history-detail');
+            history.pushState({ type: 'history-detail', view: 'history' }, '', '#history-detail');
         });
     });
 }
@@ -395,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyDetailClose = document.getElementById('history-detail-close');
     if (historyDetailClose) {
         historyDetailClose.addEventListener('click', () => {
-            history.back();
+            closeHistoryDetail();
         });
     }
 
@@ -476,6 +487,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 historyDetail.classList.add('hidden');
                 historyDetail.classList.remove('flex');
             }
+            showView('history');
+            return;
+        }
+
+        if (state.view) {
+            showView(state.view);
             return;
         }
 
@@ -512,7 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    history.replaceState({ step: currentStep }, '', window.location.href);
+    history.replaceState({ view: 'home', step: currentStep }, '', window.location.href);
     updateStepUI();
 
     btnEvaluate.addEventListener('click', async () => {
