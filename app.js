@@ -272,6 +272,15 @@ window.signOut = async () => {
     }
 };
 
+function closeHistoryDetail() {
+    const detail = document.getElementById('history-detail');
+    if (!detail) return;
+
+    detail.classList.add('hidden');
+    detail.classList.remove('flex');
+    history.back();
+}
+
 function renderHistoryList(items) {
     const list = document.getElementById('history-list');
     const searchInput = document.getElementById('history-search');
@@ -347,6 +356,8 @@ function renderHistoryList(items) {
             `;
 
             detail.classList.remove('hidden');
+            detail.classList.add('flex');
+            history.pushState({ type: 'history-detail', id }, '', '#history-detail');
         });
     });
 }
@@ -380,6 +391,14 @@ document.addEventListener('DOMContentLoaded', () => {
         signOutButton.addEventListener('click', window.signOut);
     }
 
+    const historyDetail = document.getElementById('history-detail');
+    const historyDetailClose = document.getElementById('history-detail-close');
+    if (historyDetailClose) {
+        historyDetailClose.addEventListener('click', () => {
+            history.back();
+        });
+    }
+
     const formSteps = Array.from(document.querySelectorAll('.form-step'));
     const stepItems = Array.from(document.querySelectorAll('.step-item'));
     const stepIndicator = document.getElementById('step-indicator');
@@ -389,6 +408,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentStep = 1;
     const totalSteps = formSteps.length;
+
+    function syncStepHistory() {
+        const nextUrl = new URL(window.location.href);
+        nextUrl.hash = `paso-${currentStep}`;
+        history.pushState({ step: currentStep }, '', nextUrl);
+    }
 
     function validateCurrentStep() {
         const currentStepElement = formSteps[currentStep - 1];
@@ -443,10 +468,38 @@ document.addEventListener('DOMContentLoaded', () => {
         btnEvaluate.classList.toggle('hidden', currentStep !== totalSteps);
     }
 
+    window.addEventListener('popstate', () => {
+        const state = history.state || {};
+
+        if (state.type === 'history-detail') {
+            if (historyDetail) {
+                historyDetail.classList.add('hidden');
+                historyDetail.classList.remove('flex');
+            }
+            return;
+        }
+
+        const stateStep = history.state && Number.isInteger(history.state.step) ? history.state.step : currentStep;
+
+        if (stateStep >= 1 && stateStep <= totalSteps && stateStep !== currentStep) {
+            currentStep = stateStep;
+            updateStepUI();
+            return;
+        }
+
+        if (currentStep > 1) {
+            currentStep -= 1;
+            updateStepUI();
+        }
+
+        syncStepHistory();
+    });
+
     prevStepButton.addEventListener('click', () => {
         if (currentStep > 1) {
             currentStep -= 1;
             updateStepUI();
+            syncStepHistory();
         }
     });
 
@@ -455,8 +508,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentStep < totalSteps) {
             currentStep += 1;
             updateStepUI();
+            syncStepHistory();
         }
     });
+
+    history.replaceState({ step: currentStep }, '', window.location.href);
+    updateStepUI();
 
     btnEvaluate.addEventListener('click', async () => {
         if (!validateCurrentStep()) return;
@@ -514,6 +571,19 @@ document.addEventListener('DOMContentLoaded', () => {
             ['Antigüedad en la actividad', formData.businessAntiquity]
         ];
 
+        const breakdownLabels = {
+            age: 'Edad',
+            'marital-status': 'Estado civil',
+            'housing-type': 'Estabilidad domiciliaria',
+            'dependents': 'Carga familiar',
+            'patrimony': 'Respaldo patrimonial',
+            'guarantor': 'Disponibilidad de garante',
+            'credit-history': 'Historial crediticio',
+            'active-credits': 'Créditos vigentes',
+            'indirect-debt': 'Deuda indirecta / garante',
+            'business-antiquity': 'Antigüedad en la actividad'
+        };
+
         display.innerHTML = `
             <div class="space-y-4">
                 <div class="p-4 rounded-xl border-2 ${scoringResult.color} text-center animate-in fade-in zoom-in duration-300">
@@ -550,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="mt-4 pt-3 border-t border-gray-200 text-xs space-y-1">
                         <p class="font-bold uppercase tracking-widest text-[10px]">Puntaje por variable</p>
-                        ${Object.entries(scoringResult.breakdown).map(([key, point]) => `<div class="flex justify-between"><span>${key}</span><span class="font-bold">${point} pts</span></div>`).join('')}
+                        ${Object.entries(scoringResult.breakdown).map(([key, point]) => `<div class="flex justify-between"><span>${breakdownLabels[key] || key}</span><span class="font-bold">${point} pts</span></div>`).join('')}
                     </div>
                     <p class="text-xs mt-4 font-medium">${scoringResult.recommendation}</p>
                 </div>
