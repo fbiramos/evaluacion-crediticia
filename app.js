@@ -397,6 +397,23 @@ document.addEventListener('DOMContentLoaded', () => {
     themeManager.init();
     initRealtimeUpdates();
 
+    const fullNameInput = document.getElementById('full-name');
+    if (fullNameInput) {
+        fullNameInput.addEventListener('input', () => {
+            const formatted = fullNameInput.value
+                .replace(/\s+/g, ' ')
+                .trimStart()
+                .toLowerCase()
+                .split(' ')
+                .map(word => word ? word.charAt(0).toUpperCase() + word.slice(1) : '')
+                .join(' ');
+
+            if (formatted !== fullNameInput.value) {
+                fullNameInput.value = formatted;
+            }
+        });
+    }
+
     const signOutButton = document.getElementById('btn-sign-out');
     if (signOutButton) {
         signOutButton.addEventListener('click', window.signOut);

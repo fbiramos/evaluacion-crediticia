@@ -6,7 +6,7 @@
     <title>CreditEval - Motor de Riesgo</title>
     <!-- Tailwind CSS para diseño rápido -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css?v=11">
+    <link rel="stylesheet" href="style.css?v=12">
     <link rel="manifest" href="manifest.json">
 </head>
 <body class="bg-gray-900 antialiased font-sans">
@@ -49,7 +49,7 @@
                         <div class="grid md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Nombre Completo</label>
-                                <input type="text" id="full-name" placeholder="Ej: María López" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <input type="text" id="full-name" placeholder="Ej: María López" class="w-full custom-input rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none" autocapitalize="words" autocomplete="name">
                             </div>
                             <div>
                                 <label class="block text-xs text-muted mb-1 uppercase tracking-wider">Carnet de Identidad</label>
@@ -215,7 +215,7 @@
 
                     <div class="pt-4 border-t border-gray-200">
                         <p class="text-[10px] text-muted uppercase font-bold mb-2 tracking-widest">Información de App</p>
-                        <p class="text-sm">Versión: <span id="app-version">v11</span></p>
+                        <p class="text-sm">Versión: <span id="app-version">v12</span></p>
                         <p class="text-sm">Estado: <span class="text-green-500 font-bold">Online</span></p>
                         <button id="btn-sign-out" class="w-full mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors" title="Sign Out">Sign Out</button>
                         <p class="text-xs text-muted mt-4 text-center">© 2024 CreditEval Professional System</p>
@@ -255,7 +255,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
     <!-- Cargamos la lógica al final -->
-    <script src="app.js?v=11"></script>
+    <script src="app.js?v=12"></script>
     <script>
         // Registro del Service Worker para actualizaciones
         if ('serviceWorker' in navigator) {
